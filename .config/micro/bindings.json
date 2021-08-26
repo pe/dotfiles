@@ -1,0 +1,8 @@
+{
+    "Alt-/": "lua:comment.comment",
+    "Ctrl-a": "StartOfText",
+    "Ctrl-d": "DeleteWordRight",
+    "Ctrl-e": "EndOfLine",
+    "Ctrl-p": "CommandMode",
+    "CtrlUnderscore": "lua:comment.comment"
+}
