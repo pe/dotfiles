@@ -1,0 +1,17 @@
+#!/bin/sh
+
+system_type=$(uname -s)
+
+if [ "$system_type" = "Darwin" ]; then
+
+    if [ -s "$HOME/.config/brewfile" ]; then
+        echo "Updating homebrew bundle"
+        brew bundle --file "$HOME/.config/brewfile"
+    fi
+
+    if [ -s "$HOME/.config/iterm2/com.googlecode.iterm2.plist" ]; then
+        echo "Setting iTerm preference folder"
+        defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.config/iterm2"
+    fi
+
+fi
