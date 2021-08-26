@@ -1,0 +1,44 @@
+[include]
+	path = ~/.config/git/local
+[core]
+	excludesfile = ~/.config/git/ignore_global
+	pager= delta
+	hooksPath = ~/.config/git/hooks
+[fetch]
+	prune = true
+[interactive]
+	diffFilter = delta --color-only
+[feature]
+	manyFiles = true
+[alias]
+	ls = log --oneline --decorate
+	lsa = log --oneline --decorate --graph --all
+    rebasemaster= "!f() { git rebase --interactive `git merge-base origin/master HEAD`; }; f"
+[rebase]
+	autosquash = true
+[diff]
+	colorMoved = zebra
+[push]
+	default = current
+[pull]
+	rebase = true
+	twohead = ort
+[merge]
+	tool = vscode
+[mergetool]
+	keepBackup = false
+[mergetool "vscode"]
+	cmd = code --wait $MERGED
+[diff]
+	tool = vscode
+[difftool "vscode"]
+	cmd = code --wait --diff $LOCAL $REMOTE
+[delta]
+	features = line-numbers
+	whitespace-error-style = 22 reverse
+	hunk-header-style = omit
+	syntax-theme = base16
+[help]
+	autocorrect = 15
+[trim]
+	protected = *release/*,*hotfix/*

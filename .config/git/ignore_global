@@ -1,0 +1,6 @@
+*~
+.DS_Store
+/subprojects/*/src/main/generated/
+/subprojects/*/src/test/generated_tests/
+/subprojects/*/out/
+.java-version
