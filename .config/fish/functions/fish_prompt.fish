@@ -4,6 +4,13 @@ function __login_on_remote
     end
 end
 
+function __dotfiles_change
+    set -l git_status (command yadm status --branch --porcelain=2 2>/dev/null)
+    if not string match --quiet '# branch.ab +0 -0' -- $git_status; or string match --quiet --invert '# *' -- $git_status
+        echo -sn ""
+    end
+end
+
 function __jobs
     set -l jobs (jobs | count)
     if [ $jobs -eq 0 ]
@@ -35,6 +42,6 @@ function fish_prompt --description 'Write out the prompt'
     # Save the last status for later (do this before anything else)
     set -l last_status $status
 
-    set -l segments (string collect (__login_on_remote) (prompt_pwd) (__fast_git_prompt) (__kubernetes_prompt) (__jobs) (__last_status $last_status))
+    set -l segments (string collect (__login_on_remote) (prompt_pwd) (__fast_git_prompt) (__kubernetes_prompt) (__jobs) (__dotfiles_change) (__last_status $last_status))
     echo -n "$segments ❯ "
 end
