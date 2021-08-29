@@ -63,12 +63,13 @@ function __file_status --description "returns the current Git status"
             set untracked (math $untracked + 1)
         else if string match --quiet 'u *' -- $file
             set unmerged (math $unmerged + 1)
-        end
-        if string match --quiet --regex '[12] [AMDRC.][AMDRC] .+' -- $file
-            set unstaged (math $unstaged + 1)
-        end
-        if string match --quiet --regex '[12] [AMDRC][AMDRC.] .+' -- $file
-            set staged (math $staged + 1)
+        else
+            if string match --quiet --regex '[12] [AMDRC.][AMDRC]' -- $file
+                set unstaged (math $unstaged + 1)
+            end
+            if string match --quiet --regex '[12] [AMDRC][AMDRC.]' -- $file
+                set staged (math $staged + 1)
+            end
         end
     end
 
