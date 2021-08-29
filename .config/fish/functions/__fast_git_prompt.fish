@@ -16,7 +16,7 @@ function __fast_git_prompt --description 'Write out the git prompt'
         return
     end
 
-    set -l git_status (command git status --branch --porcelain=2 2>/dev/null)
+    set -l git_status (command git --no-optional-locks status --branch --porcelain=2 2>/dev/null)
 
     set -l branch (__branch $git_status)
     set -l ahead_behind (__ahead_behind $git_status)
