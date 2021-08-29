@@ -9,12 +9,12 @@ function __jobs
     if [ $jobs -eq 0 ]
         return
     end
-    echo -sn (set_color 'cyan') "⚙$jobs" (set_color normal)
+    echo -sn (set_color 'cyan') " $jobs" (set_color normal)
 end
 
 function __last_status
     if [ $argv -ne 0 ]
-        echo -sn (set_color --bold 'red') '!' (set_color normal)
+        echo -sn (set_color 'red') '' (set_color normal)
     end
 end
 
@@ -27,7 +27,7 @@ function __kubernetes_prompt --description 'Write out the kubernetes prompt'
     set -l current_context (command oc project -q 2>/dev/null)
 
     if [ $status -eq 0 ]
-        echo -sn (set_color 'magenta') "ﴱ $current_context" (set_color normal)
+        echo -sn (set_color 'magenta') " $current_context" (set_color normal)
     end
 end
 
