@@ -29,9 +29,9 @@ end
 
 function __branch --description "returns the current Git branch or commit if detached"
     set -l git_status $argv
-    set -l branch "⎇ "(string match '# branch.head *' -- $git_status | string sub --start 15)
+    set -l branch ""(string match '# branch.head *' -- $git_status | string sub --start 15)
     if string match --quiet "*(detached)" -- $branch
-        set branch "ﰖ"(string match '# branch.oid *' -- $git_status | string sub --start 14 --length 8)
+        set branch ""(string match '# branch.oid *' -- $git_status | string sub --start 14 --length 8)
     end
     echo $branch
 end
