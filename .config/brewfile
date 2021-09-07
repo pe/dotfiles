@@ -15,6 +15,7 @@ brew "git-delta"
 brew "gitui"
 brew "jenv"
 brew "jq"
+brew "less" # git-delta needs version >= 581
 brew "mas"
 brew "micro"
 brew "nmap"

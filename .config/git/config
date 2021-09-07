@@ -38,6 +38,7 @@
 	whitespace-error-style = 22 reverse
 	hunk-header-style = omit
 	syntax-theme = base16
+	hyperlinks = true
 [help]
 	autocorrect = 15
 [trim]
