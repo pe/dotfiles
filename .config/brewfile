@@ -35,4 +35,3 @@ cask "imageoptim"
 cask "iterm2"
 cask "the-unarchiver"
 cask "visual-studio-code"
-mas "Xcode", id: 497799835
