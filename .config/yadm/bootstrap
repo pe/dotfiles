@@ -9,6 +9,9 @@ if [ "$system_type" = "Darwin" ]; then
         brew bundle --file "$HOME/.config/brewfile"
     fi
 
+    # Remove quarantine attribute from homebrew's quick look plugins
+    xattr -d -r com.apple.quarantine ~/Library/QuickLook
+
     if [ -s "$HOME/.config/iterm2/com.googlecode.iterm2.plist" ]; then
         echo "Setting iTerm preference folder"
         defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.config/iterm2"
