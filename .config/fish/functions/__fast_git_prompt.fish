@@ -76,7 +76,7 @@ function __file_status --description "returns the current Git status"
     set untracked (prefix_if_set '⌀' "$untracked")
     set unstaged (prefix_if_set '+' "$unstaged")
     set staged (prefix_if_set '•' "$staged")
-    set unmerged (prefix_if_set '💀' "$unmerged")
+    set unmerged (prefix_if_set '☹︎' "$unmerged")
     echo (prefix_if_set ' ' "$untracked$unstaged$staged$unmerged")
 end
 
