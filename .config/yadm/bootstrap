@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [ "$CI" != "true" ]; then
+	echo "remove ~/.github from the worktree"
+	yadm sparse-checkout set '/*' '!/.github/'
+fi
+
+echo "Updating the yadm repository origin to SSH"
+yadm remote set-url origin git@github.com:pe/dotfiles.git
+
 system_type=$(uname -s)
 
 if [ "$system_type" = "Darwin" ]; then
@@ -9,7 +17,7 @@ if [ "$system_type" = "Darwin" ]; then
         brew bundle --file "$HOME/.config/brewfile"
     fi
 
-    # Remove quarantine attribute from homebrew's quick look plugins
+    echo "Remove quarantine attribute from homebrew's quick look plugins"
     xattr -d -r com.apple.quarantine ~/Library/QuickLook
 
     if [ -s "$HOME/.config/iterm2/com.googlecode.iterm2.plist" ]; then
