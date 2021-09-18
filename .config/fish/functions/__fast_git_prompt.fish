@@ -68,7 +68,7 @@ function __stash --description "returns the current Git stash count"
     set -l git_dir $argv[1]
     set -l stashfile "$git_dir/logs/refs/stash"
     if test -s "$stashfile"
-        echo (prefix_if_set ' ⚑' (count < $stashfile))
+        printf %s ' ⚑'(count < $stashfile)
     end
 end
 
