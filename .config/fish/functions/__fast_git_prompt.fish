@@ -4,7 +4,8 @@ function __fast_git_prompt --description 'Write out the git prompt'
         return
     end
 
-    set -l repo_info (command git rev-parse --git-dir --is-bare-repository 2>/dev/null)
+    # --quiet = don't error if there are no commits
+    set -l repo_info (command git rev-parse --quiet --git-dir --is-bare-repository 2>/dev/null)
     if test -z "$repo_info"
         return # Abort when not in a repository
     end
