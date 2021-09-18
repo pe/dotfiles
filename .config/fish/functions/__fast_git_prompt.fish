@@ -55,29 +55,12 @@ end
 
 function __file_status --description "returns the current Git status"
     set -l git_status $argv
-    set -l untracked
-    set -l unstaged # aka dirty
-    set -l staged
-    set -l unmerged # aka invalid, conflict
-    for file in string match --invert '# *' -- $git_status
-        if string match --quiet '\? *' -- $file
-            set untracked (math $untracked + 1)
-        else if string match --quiet 'u *' -- $file
-            set unmerged (math $unmerged + 1)
-        else
-            if string match --quiet --regex '[12] [AMDRC.][AMDRC]' -- $file
-                set unstaged (math $unstaged + 1)
-            end
-            if string match --quiet --regex '[12] [AMDRC][AMDRC.]' -- $file
-                set staged (math $staged + 1)
-            end
-        end
-    end
 
-    set untracked (prefix_if_set '⌀' "$untracked")
-    set unstaged (prefix_if_set '+' "$unstaged")
-    set staged (prefix_if_set '•' "$staged")
-    set unmerged (prefix_if_set '☹︎' "$unmerged")
+    set -l untracked '⌀'(string match '\? *' $git_status | count) || set -e untracked
+    set -l unstaged '+'(string match --regex '[12] [AMDRC.][AMDRC]' $git_status | count) || set -e unstaged
+    set -l staged '•'(string match --regex '[12] [AMDRC][AMDRC.]' $git_status | count) || set -e staged
+    set -l unmerged '☹︎'(string match 'u *' $git_status | count) || set -e unmerged
+
     echo (prefix_if_set ' ' "$untracked$unstaged$staged$unmerged")
 end
 
