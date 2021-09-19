@@ -83,29 +83,29 @@ function __current_operation --description "returns the current Git operation"
         set step (cat $git_dir/rebase-merge/msgnum 2>/dev/null)
         set total (cat $git_dir/rebase-merge/end 2>/dev/null)
         if test -f $git_dir/rebase-merge/interactive
-            set operation "|REBASE-INTERACTIVE"
+            set operation " rebase-interactive"
         else
-            set operation "|REBASE-MERGE"
+            set operation " rebase-merge"
         end
     else
         if test -d $git_dir/rebase-apply
             set step (cat $git_dir/rebase-apply/next 2>/dev/null)
             set total (cat $git_dir/rebase-apply/last 2>/dev/null)
             if test -f $git_dir/rebase-apply/rebasing
-                set operation "|REBASE"
+                set operation " rebase"
             else if test -f $git_dir/rebase-apply/applying
-                set operation "|APPLY"
+                set operation " am"
             else
-                set operation "|APPLY/REBASE"
+                set operation " am/rebase"
             end
         else if test -f $git_dir/MERGE_HEAD
-            set operation "|MERGE"
+            set operation " merge"
         else if test -f $git_dir/CHERRY_PICK_HEAD
-            set operation "|CHERRY-PICK"
+            set operation " cherry-pick"
         else if test -f $git_dir/REVERT_HEAD
-            set operation "|REVERT"
+            set operation " revert"
         else if test -f $git_dir/BISECT_LOG
-            set operation "|BISECT"
+            set operation " bisect"
         end
     end
 
