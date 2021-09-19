@@ -64,17 +64,14 @@ function __file_status --description "returns the current Git status"
     echo (prefix_if_set ' ' "$untracked$unstaged$staged$unmerged")
 end
 
-function __stash --description "returns the current Git stash count"
-    set -l git_dir $argv[1]
+function __stash --description "returns the current Git stash count" --argument-names git_dir
     set -l stashfile "$git_dir/logs/refs/stash"
     if test -s "$stashfile"
         printf %s ' ⚑'(count < $stashfile)
     end
 end
 
-function __current_operation --description "returns the current Git operation"
-    set -l git_dir $argv[1]
-
+function __current_operation --description "returns the current Git operation" --argument-names git_dir
     set -l operation
     set -l step
     set -l total
@@ -116,8 +113,8 @@ function __current_operation --description "returns the current Git operation"
     echo $operation
 end
 
-function prefix_if_set
-    if test -n "$argv[2]"
-        echo "$argv[1]$argv[2]"
+function prefix_if_set --argument-names prefix value
+    if test -n "$value"
+        echo "$prefix$value"
     end
 end
