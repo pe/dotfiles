@@ -21,7 +21,7 @@ end
 
 function __last_status
     if [ $argv -ne 0 ]
-        echo -sn (set_color 'red') '' (set_color normal)
+        echo -sn (set_color 'red') '✘' (set_color normal)
     end
 end
 
