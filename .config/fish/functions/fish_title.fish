@@ -12,7 +12,7 @@ function fish_title
             # 'fish' is not of interest as a command
             echo "$working_directory"
         else
-            echo "$command  —  $working_directory"
+            echo "$command · $working_directory"
         end
     end
 end
