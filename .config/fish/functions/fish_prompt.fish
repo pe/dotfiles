@@ -1,47 +1,38 @@
-function __login_on_remote
-    if set -q SSH_TTY
-        prompt_login
-    end
+function fish_prompt
 end
 
-function __dotfiles_change
-    set -l git_status (command yadm --no-optional-locks status --branch --porcelain=2 2>/dev/null)
-    if not string match --quiet '# branch.ab +0 -0' -- $git_status; or string match --quiet --invert '# *' -- $git_status
-        echo -sn ""
-    end
+status is-interactive || exit
+
+_tide_remove_unusable_items
+_tide_cache_variables
+
+# The first element in $$_tide_prompt_var is right prompt
+# All remaining ones are 'left' prompt (also upper right in 2-line prompts)
+set -g _tide_prompt_var _tide_prompt_$fish_pid
+
+function _tide_refresh_prompt --on-variable $_tide_prompt_var
+    set -g _tide_self_repainting # prevents us from creating a second background job
+    commandline --function repaint
 end
 
-function __jobs
-    set -l jobs (jobs | count)
-    if [ $jobs -eq 0 ]
-        return
+function fish_prompt
+    _tide_last_status=$status _tide_last_pipestatus=$pipestatus if not set -e _tide_self_repainting
+        jobs --query
+        fish --command "_tide_jobs_status=$status CMD_DURATION=$CMD_DURATION COLUMNS=$COLUMNS \
+            fish_bind_mode=$fish_bind_mode set -U $_tide_prompt_var (_tide_prompt)" &
+        builtin disown
+
+        command kill $_tide_last_pid 2>/dev/null
+        set -g _tide_last_pid $last_pid
     end
-    echo -sn (set_color 'cyan') " $jobs" (set_color normal)
+
+    string unescape $_tide_add_newline $$_tide_prompt_var[1][2..]
 end
 
-function __last_status
-    if [ $argv -ne 0 ]
-        echo -sn (set_color 'red') '✘' (set_color normal)
-    end
+function fish_right_prompt
+    string unescape $$_tide_prompt_var[1][1]
 end
 
-function __kubernetes_prompt --description 'Write out the kubernetes prompt'
-    # If openshift isn't installed, there's nothing we can do
-    if not command -sq oc
-        return
-    end
-
-    set -l current_context (command oc project -q 2>/dev/null)
-
-    if [ $status -eq 0 ]
-        echo -sn (set_color 'magenta') " $current_context" (set_color normal)
-    end
-end
-
-function fish_prompt --description 'Write out the prompt'
-    # Save the last status for later (do this before anything else)
-    set -l last_status $status
-
-    set -l segments (string collect (__login_on_remote) (prompt_pwd) (__fast_git_prompt) (__kubernetes_prompt) (__jobs) (__dotfiles_change) (__last_status $last_status))
-    echo -n "$segments ❯ "
+function _tide_on_fish_exit --on-event fish_exit
+    set -e $_tide_prompt_var
 end

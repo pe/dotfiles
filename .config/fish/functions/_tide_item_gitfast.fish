@@ -1,20 +1,14 @@
-function __fast_git_prompt --description 'Write out the git prompt'
+function _tide_item_gitfast --description 'Write out the git prompt'
     # If git isn't installed, there's nothing we can do
     if not command -sq git
         return
     end
 
     # --quiet = don't error if there are no commits
-    set -l repo_info (command git rev-parse --quiet --git-dir --is-bare-repository 2>/dev/null)
-    if test -z "$repo_info"
-        return # Abort when not in a repository
-    end
-    set -l git_dir $repo_info[1]
-    set -l bare_repo $repo_info[2]
-
-    if test true = "$bare_repo"
-        echo -n BARE
-        return
+    command git rev-parse --quiet --git-dir --is-inside-work-tree 2>/dev/null |
+        read --local --line git_dir is_inside_work_tree
+    if test true != "$is_inside_work_tree"
+        return # Abort when not inside a work tree (a bare repo, a .git dir or not a repository)
     end
 
     set -l git_status (command git --no-optional-locks status --branch --porcelain=2 2>/dev/null)
@@ -25,7 +19,7 @@ function __fast_git_prompt --description 'Write out the git prompt'
     set -l stash (__stash $git_dir)
     set -l operation (__current_operation $git_dir)
 
-    echo -sn (set_color 'blue') "$branch$operation$ahead_behind$file_status$stash" (set_color normal)
+    _tide_print_item gitfast $tide_git_icon $branch $operation $ahead_behind $stash $file_status
 end
 
 function __branch --description "returns the current Git branch or commit if detached"
@@ -39,7 +33,7 @@ end
 
 function __ahead_behind --description "returns how many commits ahead/behind"
     set -l git_status $argv
-    set -l ahead_behind (string match --regex '# branch.ab \+(\d+) \-(\\d+)' -- $git_status)
+    set -l ahead_behind (string match --regex '# branch.ab \+(\d+) \-(\d+)' -- $git_status)
     set -l ahead
     set -l behind
     if test -n "$ahead_behind"
@@ -77,8 +71,8 @@ function __current_operation --description "returns the current Git operation" -
     set -l total
 
     if test -d $git_dir/rebase-merge
-        set step (cat $git_dir/rebase-merge/msgnum 2>/dev/null)
-        set total (cat $git_dir/rebase-merge/end 2>/dev/null)
+        read step <$git_dir/rebase-merge/msgnum
+        read total <$git_dir/rebase-merge/end
         if test -f $git_dir/rebase-merge/interactive
             set operation " rebase-interactive"
         else
@@ -86,8 +80,8 @@ function __current_operation --description "returns the current Git operation" -
         end
     else
         if test -d $git_dir/rebase-apply
-            set step (cat $git_dir/rebase-apply/next 2>/dev/null)
-            set total (cat $git_dir/rebase-apply/last 2>/dev/null)
+            read step <$git_dir/rebase-apply/next
+            read total <$git_dir/rebase-apply/last
             if test -f $git_dir/rebase-apply/rebasing
                 set operation " rebase"
             else if test -f $git_dir/rebase-apply/applying
