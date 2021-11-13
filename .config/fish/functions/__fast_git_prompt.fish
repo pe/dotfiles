@@ -57,9 +57,9 @@ function __file_status --description "returns the current Git status"
     set -l git_status $argv
 
     set -l untracked '?'(string match '\? *' $git_status | count) || set -e untracked
-    set -l unstaged '!'(string match --regex '[12] [AMDRC.][AMDRC]' $git_status | count) || set -e unstaged
-    set -l staged '+'(string match --regex '[12] [AMDRC][AMDRC.]' $git_status | count) || set -e staged
-    set -l unmerged '~'(string match 'u *' $git_status | count) || set -e unmerged
+    set -l unstaged '+'(string match --regex '[12] [AMDRC.][AMDRC]' $git_status | count) || set -e unstaged
+    set -l staged '•'(string match --regex '[12] [AMDRC][AMDRC.]' $git_status | count) || set -e staged
+    set -l unmerged '☹︎'(string match 'u *' $git_status | count) || set -e unmerged
 
     echo (prefix_if_set ' ' "$untracked$unstaged$staged$unmerged")
 end
@@ -67,7 +67,7 @@ end
 function __stash --description "returns the current Git stash count" --argument-names git_dir
     set -l stashfile "$git_dir/logs/refs/stash"
     if test -s "$stashfile"
-        printf %s ' *'(count < $stashfile)
+        printf %s ' ⚑'(count < $stashfile)
     end
 end
 
