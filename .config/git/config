@@ -24,6 +24,7 @@
 	rebase = true
 [merge]
 	tool = vscode
+	conflictstyle = diff3
 [mergetool]
 	keepBackup = false
 [mergetool "vscode"]
