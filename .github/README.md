@@ -10,3 +10,5 @@ brew install yadm
 yadm clone --bootstrap https://pe@github.com/pe/dotfiles.git
 edit ~/.config/git/local # set name & email
 ```
+
+Upload SSH Key to Github
