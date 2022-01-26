@@ -17,14 +17,14 @@
 [rebase]
 	autosquash = true
 [diff]
-	colorMoved = zebra
+	colorMoved = default
 [push]
 	default = current
 [pull]
 	rebase = true
 [merge]
 	tool = vscode
-	conflictstyle = diff3
+	conflictstyle = zdiff3
 [mergetool]
 	keepBackup = false
 [mergetool "vscode"]
