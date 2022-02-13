@@ -1,0 +1,67 @@
+add_newline = false
+
+format = """
+$username\
+$hostname\
+$directory\
+$kubernetes\
+$git_branch\
+$git_commit\
+$git_state\
+$git_status\
+$character"""
+
+right_format = """
+$cmd_duration\
+$jobs\
+${custom.yadm}"""
+
+[cmd_duration]
+format = "[ $duration]($style) "
+
+[directory]
+truncation_length = 4
+fish_style_pwd_dir_length = 2
+truncate_to_repo = false
+read_only = ""
+
+[git_branch]
+symbol = ""
+format = "[$symbol$branch]($style) "
+only_attached = true
+
+[git_commit]
+only_detached = true
+format = "[$hash$tag]($style) "
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+conflicted = "☹︎$count"
+ahead = "⇡$count"
+behind = "⇣$count"
+untracked = "?$count"
+stashed = "⚑$count"
+modified = '+$count'
+staged = "•$count"
+renamed = "»$count"
+deleted = "✘$count"
+
+[hostname]
+format = "@[$hostname]($style):"
+
+[jobs]
+symbol = " "
+
+[kubernetes]
+symbol = "☸"
+format = '[$symbol$context\($namespace\)](dimmed green) '
+[kubernetes.context_aliases]
+".*/(?P<cluster>[\\w-]+)/.*" = "$cluster"
+
+[username]
+format = "[$user]($style)"
+
+[custom.yadm]
+when = "command yadm --no-optional-locks status --porcelain=2 2>/dev/null | string match --regex --quiet --invert '(^# branch.oid .\\w+$|^# branch.head \\w+$|^# branch.upstream .+$|^# branch.ab \\+0 -0$)'"
+description = "Uncommited or unpushed changes in YADM managed dotfiles"
+symbol = ""
