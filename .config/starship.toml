@@ -53,8 +53,9 @@ format = "@[$hostname]($style):"
 symbol = " "
 
 [kubernetes]
+disabled = false
 symbol = "☸"
-format = '[$symbol$context\($namespace\)](dimmed green) '
+format = '[$symbol$namespace](dimmed green) '
 [kubernetes.context_aliases]
 ".*/(?P<cluster>[\\w-]+)/.*" = "$cluster"
 
