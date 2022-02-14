@@ -8,7 +8,7 @@ function fish_title
         # This is used by `fg` to show the true process name, among others.
         set -l command (set -q argv[1] && echo $argv[1] || status current-command)
 
-        if [ $command = fish ]
+        if [ "$command" = fish ]
             # 'fish' is not of interest as a command
             echo "$working_directory"
         else
