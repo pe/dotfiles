@@ -18,21 +18,25 @@ ${custom.yadm}"""
 
 [cmd_duration]
 format = "[ $duration]($style) "
+style = "bright-black"
 
 [directory]
 truncation_length = 4
 fish_style_pwd_dir_length = 2
 truncate_to_repo = false
 read_only = ""
+style = "grey"
 
 [git_branch]
 symbol = ""
+style = "#f1502f"
 format = "[$symbol$branch]($style) "
 only_attached = true
 
 [git_commit]
 only_detached = true
 format = "[$hash$tag]($style) "
+style = "#f1502f"
 
 [git_status]
 format = '([$all_status$ahead_behind]($style) )'
@@ -45,6 +49,7 @@ modified = '+$count'
 staged = "•$count"
 renamed = "»$count"
 deleted = "✘$count"
+style = "white"
 
 [hostname]
 format = "@[$hostname]($style):"
@@ -55,7 +60,8 @@ symbol = " "
 [kubernetes]
 disabled = false
 symbol = "☸"
-format = '[$symbol$namespace](dimmed green) '
+format = '[$symbol$namespace]($style) '
+style = "#326ce5"
 [kubernetes.context_aliases]
 ".*/(?P<cluster>[\\w-]+)/.*" = "$cluster"
 
