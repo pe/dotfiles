@@ -70,6 +70,6 @@ style = "#326ce5"
 format = "[$user]($style)"
 
 [custom.yadm]
-when = "command yadm --no-optional-locks status --porcelain=2 2>/dev/null | string match --regex --quiet --invert '(^# branch.oid .\\w+$|^# branch.head \\w+$|^# branch.upstream .+$|^# branch.ab \\+0 -0$)'"
+when = "command yadm --no-optional-locks status --branch --porcelain=2 2>/dev/null | string match --regex --quiet --invert '(^# branch.oid .\\w+$|^# branch.head \\w+$|^# branch.upstream .+$|^# branch.ab \\+0 -0$)'"
 description = "Uncommited or unpushed changes in YADM managed dotfiles"
 symbol = ""
