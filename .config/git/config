@@ -28,7 +28,6 @@
 [mergetool "vscode"]
 	cmd = code --wait $MERGED
 [diff]
-	colorMoved = default
 	algorithm = histogram
 	tool = vscode
 [difftool "vscode"]
