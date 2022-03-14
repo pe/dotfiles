@@ -7,8 +7,9 @@ function fish_title
 
         # Don't print "fish" because it's redundant
         if test "$command" = fish
-            set command
+            echo (prompt_pwd --full-length-dirs=4 --dir-length=2)
+        else
+            echo "$command · " (prompt_pwd --full-length-dirs=4 --dir-length=2)
         end
-        echo "$command · " (prompt_pwd --full-length-dirs=4 --dir-length=2)
     end
 end
