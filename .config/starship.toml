@@ -37,6 +37,8 @@ only_attached = true
 only_detached = true
 format = "[$hash$tag]($style) "
 style = "#f1502f"
+tag_disabled = false
+tag_symbol = "  "
 
 [git_status]
 format = '([$all_status$ahead_behind]($style) )'
