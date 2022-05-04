@@ -62,7 +62,7 @@ symbol = " "
 
 [kubernetes]
 disabled = false
-symbol = "☸"
+symbol = "⎈ "
 format = '[$symbol$namespace]($style) '
 style = "#326ce5"
 [kubernetes.context_aliases]
