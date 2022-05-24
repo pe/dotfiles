@@ -63,10 +63,10 @@ symbol = " "
 [kubernetes]
 disabled = false
 symbol = "⎈ "
-format = '[$symbol$namespace]($style) '
+format = '[$symbol$namespace/$context]($style) '
 style = "#326ce5"
 [kubernetes.context_aliases]
-".*/(?P<cluster>[\\w-]+)/.*" = "$cluster"
+".*/api-(?P<cluster>[\\w]+)[\\w-]+:6443/.*" = "$cluster"
 
 [username]
 format = "[$user]($style)"
