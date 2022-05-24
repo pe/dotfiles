@@ -30,12 +30,12 @@ style = "grey"
 [git_branch]
 symbol = ""
 style = "#f1502f"
-format = "[$symbol$branch]($style) "
+format = "[$symbol]($style)$branch "
 only_attached = true
 
 [git_commit]
 only_detached = true
-format = "[$hash$tag]($style) "
+format = "[]($style)$hash$tag "
 style = "#f1502f"
 tag_disabled = false
 tag_symbol = "  "
@@ -63,7 +63,7 @@ symbol = " "
 [kubernetes]
 disabled = false
 symbol = "⎈ "
-format = '[$symbol$namespace/$context]($style) '
+format = '[$symbol]($style)$namespace/$context '
 style = "#326ce5"
 [kubernetes.context_aliases]
 ".*/api-(?P<cluster>[\\w]+)[\\w-]+:6443/.*" = "$cluster"
