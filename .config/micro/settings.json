@@ -1,6 +1,7 @@
 {
     "backupdir": "~/.cache/micro/backups",
     "colorscheme": "one-dark",
+    "hlsearch": true,
     "statusformatl": "$(filename) $(modified)",
     "statusformatr": "$(status.paste) $(opt:filetype) $(line),$(col)"
 }
