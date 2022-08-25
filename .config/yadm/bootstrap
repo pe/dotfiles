@@ -1,10 +1,5 @@
 #!/bin/sh
 
-if [ "$CI" != "true" ]; then
-	echo "remove ~/.github from the worktree"
-	yadm sparse-checkout set '/*' '!/.github/'
-fi
-
 echo "Updating the yadm repository origin to SSH"
 yadm remote set-url origin git@github.com:pe/dotfiles.git
 
