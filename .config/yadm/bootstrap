@@ -26,4 +26,8 @@ if [ "$system_type" = "Darwin" ]; then
         defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
     fi
 
+    echo "Making fish the default shell"
+    echo "/opt/homebrew/bin/fish" | sudo tee -a /etc/shells
+    chsh -s /opt/homebrew/bin/fish
+
 fi
