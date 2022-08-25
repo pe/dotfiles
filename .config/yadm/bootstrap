@@ -21,8 +21,9 @@ if [ "$system_type" = "Darwin" ]; then
     xattr -d -r com.apple.quarantine ~/Library/QuickLook
 
     if [ -s "$HOME/.config/iterm2/com.googlecode.iterm2.plist" ]; then
-        echo "Setting iTerm preference folder"
+        echo "Syncing iTerm2 preferences"
         defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.config/iterm2"
+        defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
     fi
 
 fi
