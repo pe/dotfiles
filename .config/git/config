@@ -26,7 +26,7 @@
 [mergetool]
 	keepBackup = false
 [mergetool "vscode"]
-	cmd = code --wait $MERGED
+	cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
 [diff]
 	algorithm = histogram
 	tool = vscode
