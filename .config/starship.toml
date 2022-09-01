@@ -13,6 +13,7 @@ $character"""
 right_format = """
 $cmd_duration\
 $kubernetes\
+$java\
 $jobs\
 ${custom.yadm}"""
 
@@ -56,6 +57,10 @@ style = "white"
 
 [hostname]
 format = "@[$hostname]($style):"
+
+[java]
+symbol = ""
+style = "#5382a1"
 
 [jobs]
 symbol = " "
