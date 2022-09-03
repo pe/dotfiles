@@ -1,3 +1,5 @@
+/opt/homebrew/bin/brew shellenv | source
+
 test -e {$HOME}/.iterm2_shell_integration.fish ; and source {$HOME}/.iterm2_shell_integration.fish
 
 set PATH $HOME/.jenv/bin $PATH
