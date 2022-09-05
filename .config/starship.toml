@@ -12,7 +12,7 @@ $character"""
 
 right_format = """
 $cmd_duration\
-$kubernetes\
+${custom.openshift}\
 $java\
 $jobs\
 ${custom.yadm}"""
@@ -67,14 +67,6 @@ style = "#5382a1"
 [jobs]
 symbol = " "
 
-[kubernetes]
-disabled = false
-symbol = "⎈ "
-format = ' [$symbol]($style)$namespace/$context'
-style = "#326ce5"
-[kubernetes.context_aliases]
-".*/api-(?P<cluster>[\\w]+)[\\w-]+:6443/.*" = "$cluster"
-
 [username]
 format = "[$user]($style)"
 
@@ -82,3 +74,12 @@ format = "[$user]($style)"
 when = "command yadm --no-optional-locks status --untracked-files=no --branch --porcelain=2 2>/dev/null | string match --regex --quiet --invert '(^# branch.oid .\\w+$|^# branch.head \\w+$|^# branch.upstream .+$|^# branch.ab \\+0 -0$)'"
 description = "Uncommited or unpushed changes in YADM managed dotfiles"
 symbol = " "
+
+[custom.openshift]
+when = "oc project -q"
+description = "The current openshift project"
+command = "oc project -q"
+symbol = "⎈ "
+style = "#326ce5"
+format = ' [$symbol]($style)$output'
+
