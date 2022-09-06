@@ -22,7 +22,8 @@ if [ "$system_type" = "Darwin" ]; then
     fi
 
     echo "Making fish the default shell"
-    echo "$(brew --prefix)/bin/fish" | sudo tee -a /etc/shells
-    chsh -s "$(brew --prefix)/bin/fish"
-
+    if [ "$CI" != "true" ]; then
+        echo "$(brew --prefix)/bin/fish" | sudo tee -a /etc/shells
+        chsh -s "$(brew --prefix)/bin/fish"
+    fi
 fi
