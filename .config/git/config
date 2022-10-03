@@ -16,6 +16,7 @@
     rebasemaster= "!f() { git rebase --interactive `git merge-base origin/master HEAD`; }; f"
 [rebase]
 	autosquash = true
+	updateRefs = true
 [push]
 	default = current
 [pull]
