@@ -11,8 +11,8 @@
 [feature]
 	manyFiles = true
 [alias]
-	ls = log --oneline --decorate
-	lsa = log --oneline --decorate --graph --all
+	ls = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)'
+	lsa = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)' --graph --all
     rebasemaster= "!f() { git rebase --interactive `git merge-base origin/master HEAD`; }; f"
 [rebase]
 	autosquash = true
