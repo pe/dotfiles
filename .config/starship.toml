@@ -12,10 +12,8 @@ $character"""
 
 right_format = """
 $cmd_duration\
-${custom.openshift}\
 $java\
-$jobs\
-${custom.yadm}"""
+$jobs"""
 
 [cmd_duration]
 format = " [ $duration]($style)"
@@ -69,17 +67,3 @@ symbol = " "
 
 [username]
 format = "[$user]($style)"
-
-[custom.yadm]
-when = "command yadm --no-optional-locks status --untracked-files=no --branch --porcelain=2 2>/dev/null | string match --regex --quiet --invert '(^# branch.oid .\\w+$|^# branch.head \\w+$|^# branch.upstream .+$|^# branch.ab \\+0 -0$)'"
-description = "Uncommited or unpushed changes in YADM managed dotfiles"
-symbol = " "
-
-[custom.openshift]
-when = "oc project -q"
-description = "The current openshift project"
-command = "oc project -q"
-symbol = "⎈ "
-style = "#326ce5"
-format = ' [$symbol]($style)$output'
-
