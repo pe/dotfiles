@@ -531,14 +531,26 @@
 	</dict>
 	<key>Default Bookmark Guid</key>
 	<string>31637470-C454-457B-9804-A96CD5752244</string>
+	<key>DimBackgroundWindows</key>
+	<false/>
+	<key>DimInactiveSplitPanes</key>
+	<true/>
+	<key>DimOnlyText</key>
+	<true/>
+	<key>DoubleClickPerformsSmartSelection</key>
+	<true/>
 	<key>EnableAPIServer</key>
 	<true/>
 	<key>EnableDivisionView</key>
 	<true/>
+	<key>EnterCopyModeAutomatically</key>
+	<false/>
 	<key>EscapeShellCharsWithBackslash</key>
 	<false/>
 	<key>HapticFeedbackForEsc</key>
 	<false/>
+	<key>HideTabNumber</key>
+	<true/>
 	<key>HotkeyMigratedFromSingleToMulti</key>
 	<true/>
 	<key>IRMemory</key>
@@ -1496,17 +1508,15 @@
 				<array>
 					<dict>
 						<key>class</key>
-						<string>iTermStatusBarSwiftyStringComponent</string>
+						<string>iTermStatusBarRPCProvidedTextComponent</string>
 						<key>configuration</key>
 						<dict>
 							<key>knobs</key>
 							<dict>
 								<key>base: compression resistance</key>
-								<integer>1</integer>
+								<real>1</real>
 								<key>base: priority</key>
 								<real>5</real>
-								<key>expression</key>
-								<string>⎈ \(user.openshiftProject)</string>
 								<key>maxwidth</key>
 								<real>+infinity</real>
 								<key>minwidth</key>
@@ -1516,13 +1526,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.89803922176361084</real>
+									<real>0.0</real>
 									<key>Color Space</key>
 									<string>sRGB</string>
 									<key>Green Component</key>
-									<real>0.42352941632270813</real>
+									<real>0.62371826171875</real>
 									<key>Red Component</key>
-									<real>0.19607843458652496</real>
+									<real>1</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -1536,21 +1546,33 @@
 								<key>remove empty components</key>
 								<false/>
 							</dict>
+							<key>registration request</key>
+							<data>
+							Cg55YWRtX2Nvcm91dGlu
+							ZRIHCgVrbm9icygDQnsK
+							BHlhZG0SO1Nob3dzIGlm
+							IHRoZXJlIGFyZSBjaGFu
+							Z2VzIHRvIGEgeWFkbSBt
+							YW5hZ2VkIGhvbWUgZGly
+							ZWN0b3J5IijvoZogIDEg
+							YWhlYWQgY29tbWl0cyDi
+							gJMgMiBmaWxlcyBjaGFu
+							Z2VkLQAAcEIyB2lvLnlh
+							ZG0=
+							</data>
 						</dict>
 					</dict>
 					<dict>
 						<key>class</key>
-						<string>iTermStatusBarSwiftyStringComponent</string>
+						<string>iTermStatusBarRPCProvidedTextComponent</string>
 						<key>configuration</key>
 						<dict>
 							<key>knobs</key>
 							<dict>
 								<key>base: compression resistance</key>
-								<integer>1</integer>
+								<real>1</real>
 								<key>base: priority</key>
 								<real>5</real>
-								<key>expression</key>
-								<string>⚙ \(user.yadmDirty)</string>
 								<key>maxwidth</key>
 								<real>+infinity</real>
 								<key>minwidth</key>
@@ -1560,13 +1582,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.3909759521484375</real>
+									<real>0.0</real>
 									<key>Color Space</key>
 									<string>sRGB</string>
 									<key>Green Component</key>
-									<real>0.62999999523162842</real>
-									<key>Red Component</key>
 									<real>0.0</real>
+									<key>Red Component</key>
+									<real>0.93333333333333335</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -1580,6 +1602,20 @@
 								<key>remove empty components</key>
 								<false/>
 							</dict>
+							<key>registration request</key>
+							<data>
+							ChNvcGVuc2hpZnRfY29y
+							b3V0aW5lEgcKBWtub2Jz
+							EgMKAV8iHAoBXxIXdXNl
+							ci5vcGVuc2hpZnRFeGVj
+							dXRlZD8oA0JgCglvcGVu
+							c2hpZnQSLlRoZSBjdXJy
+							ZW50bHkgY29uZmlndXJl
+							ZCBwcm9qZWN0IGZvciBv
+							cGVuc2hpZnQiD+KOiCBw
+							cm9qZWN0bmFtZS0AABZE
+							Mg1jb20ub3BlbnNoaWZ0
+							</data>
 						</dict>
 					</dict>
 				</array>
@@ -1689,7 +1725,7 @@
 	<key>StatusBarPosition</key>
 	<integer>0</integer>
 	<key>SuppressRestartAnnouncement</key>
-	<true/>
+	<false/>
 	<key>TabStyleWithAutomaticOption</key>
 	<integer>5</integer>
 	<key>TabTransform</key>
@@ -1702,7 +1738,7 @@
 		<string>31637470-C454-457B-9804-A96CD5752244</string>
 	</dict>
 	<key>UseBorder</key>
-	<true/>
+	<false/>
 	<key>VisualIndicatorForEsc</key>
 	<false/>
 	<key>WindowNumber</key>
