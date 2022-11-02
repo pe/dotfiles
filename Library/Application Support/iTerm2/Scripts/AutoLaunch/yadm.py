@@ -78,13 +78,11 @@ async def main(connection):
         modes = [iterm2.PromptMonitor.Mode.COMMAND_START]
         async with iterm2.PromptMonitor(connection, session_id, modes=modes) as mon:
             while True:
-                mode, _ = await mon.async_get()
-                if mode == iterm2.PromptMonitor.Mode.COMMAND_START:
-                    prompt = await iterm2.async_get_last_prompt(connection, session_id)
-                    if "yadm " in prompt.command:
-                        global COUNTER
-                        COUNTER += 1
-                        await session.async_set_variable("user.yadmExecuted", COUNTER)
+                _, command = await mon.async_get()
+                if "yadm " in command:
+                    global COUNTER
+                    COUNTER += 1
+                    await session.async_set_variable("user.yadmExecuted", COUNTER)
 
     await iterm2.EachSessionOnceMonitor.async_foreach_session_create_task(app, monitor)
 

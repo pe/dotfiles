@@ -9,7 +9,7 @@ import iterm2
 COUNTER = 0
 #return code for command not found
 EX_NOTFOUND = 127
-OPENSHIFT_COMMANDS = ["oc login ", "oc logout ", "oc project "]
+OPENSHIFT_COMMANDS = ["oc login ", "oc logout", "oc project "]
 
 async def main(connection):
     icon2x = iterm2.StatusBarComponent.Icon(2, "iVBORw0KGgoAAAANSUhEUgAAACAAAAAiCAYAAAA+stv/AAAB0ElEQVR4Ae3SA6xcQRSA4dq2bdtmVNt2g9qNatu2bdu2bbtdnv4b3sxy7r4X3j/5Ysycc6JYWZksO5qjBwahAyojMSKtlBiNZxA/bNiGuoiwomE4fkM07ERGhFVyHIKY9AONYKqo2AcJ4ickABtqQrvBEKjeoidKIwk8ZUZLLIANoviBNliEgQhaeTggBk5MRyIEKjeuQ3Ab/+CEQGALdhuJ8BKi6I1QS4Qi8NQfgo+YhTIIWBuIYgvMFAP1sAAxEVKb1Z0jCXQqiOn4AMEjhFQc/IIYjIduAyGK0ghaDoiiBlJDpzRwmLmhohAI3HDiIn5At7sQg7Xoi0nwWznswEq4IRC4EBM6ncQ3vMI/uCHYhKDVhuAuhiATdCuOODgLMViKgCVFP3RHuCXBX4jBcPisAbbABsE8hFtfiKIgfHYMYvABCWC2Qurv8Rh+awtRrICnGMiMUIuPuxDFIPgtNp5BDGzYiA/4i9YIVklcgigOIxoC1hKvMAYHIVAdREfkVo6tFObCBVG8RxoELSqiw1NCXIYE8BHvIQG4UBOmSoXrEJNs6IawioWRsEE03EcJRFj5sBhfIX64cQktER2RUixUQ1eMxWgMQFOkglZWVv8BVWcaDO4vw3sAAAAASUVORK5CYII=")
@@ -38,6 +38,8 @@ async def main(connection):
         stdout, stderr = await proc.communicate()
         if proc.returncode == EX_NOTFOUND:
             return ''
+        if "(Unauthorized)" in stderr.decode():
+            return 'Not logged in'
         if stderr:
             return [f'{textwrap.shorten(stderr.decode(), width=width, placeholder="…")}'
                     for width in [20, 40, 60, 80, 100, 120]]
@@ -54,13 +56,12 @@ async def main(connection):
         modes = [iterm2.PromptMonitor.Mode.COMMAND_START]
         async with iterm2.PromptMonitor(connection, session_id, modes=modes) as mon:
             while True:
-                mode, _ = await mon.async_get()
-                if mode == iterm2.PromptMonitor.Mode.COMMAND_START:
-                    prompt = await iterm2.async_get_last_prompt(connection, session_id)
-                    if any(command in prompt.command for command in OPENSHIFT_COMMANDS):
-                        global COUNTER
-                        COUNTER += 1
-                        await session.async_set_variable("user.openshiftExecuted", COUNTER)
+                _, command = await mon.async_get()
+                if any(openshift_command in command for openshift_command in OPENSHIFT_COMMANDS):
+                    global COUNTER
+                    COUNTER += 1
+                    await asyncio.sleep(1)
+                    await session.async_set_variable("user.openshiftExecuted", COUNTER)
 
     await iterm2.EachSessionOnceMonitor.async_foreach_session_create_task(app, monitor)
 
