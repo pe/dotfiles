@@ -9,7 +9,7 @@
 [interactive]
 	diffFilter = delta --color-only
 [feature]
-	manyFiles = true
+	manyFiles = false
 [alias]
 	ls = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)'
 	lsa = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)' --graph --all
