@@ -7,5 +7,6 @@ if status --is-interactive
     command -q starship; and starship init fish | source
     set -e STARSHIP_SHELL # Breaks iterm shell integration
     command -q oc; and oc completion fish | source
+    command -q atuin; and atuin init fish | source
     test -e {$HOME}/.iterm2_shell_integration.fish; and source {$HOME}/.iterm2_shell_integration.fish
 end
