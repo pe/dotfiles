@@ -22,17 +22,22 @@
 [pull]
 	rebase = true
 [merge]
-	tool = vscode
+	tool = intellij
 	conflictstyle = zdiff3
 [mergetool]
 	keepBackup = false
 [mergetool "vscode"]
 	cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
+[mergetool "intellij"]
+	cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea merge $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\") $(cd $(dirname \"$BASE\") && pwd)/$(basename \"$BASE\") $(cd $(dirname \"$MERGED\") && pwd)/$(basename \"$MERGED\")
+	trustExitCode = true
 [diff]
 	algorithm = histogram
-	tool = vscode
+	tool = intellij
 [difftool "vscode"]
 	cmd = code --wait --diff $LOCAL $REMOTE
+[difftool "intellij"]
+	cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea diff $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\")
 [delta]
 	features = line-numbers
 	whitespace-error-style = 22 reverse
