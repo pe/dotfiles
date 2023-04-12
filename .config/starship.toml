@@ -57,7 +57,7 @@ style = "white"
 format = "@[$hostname]($style):"
 
 [java]
-version_format = "${major}.${minor}"
+version_format = "${major}"
 symbol = ""
 format = " [${symbol} (${version})]($style)"
 style = "#5382a1"
