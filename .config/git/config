@@ -4,6 +4,7 @@
 	excludesfile = ~/.config/git/ignore_global
 	pager= delta
 	hooksPath = ~/.config/git/hooks
+	untrackedCache = true #until we can enable manyFiles again
 [fetch]
 	prune = true
 [interactive]
