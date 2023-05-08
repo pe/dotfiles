@@ -23,7 +23,7 @@ style = "bright-black"
 truncation_length = 4
 fish_style_pwd_dir_length = 2
 truncate_to_repo = false
-read_only = ""
+read_only = ""
 style = "grey"
 
 [git_branch]
