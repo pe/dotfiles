@@ -14,7 +14,7 @@
 [alias]
 	ls = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)'
 	lsa = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)' --graph --all
-    rebasemaster= "!f() { git rebase --interactive `git merge-base origin/master HEAD`; }; f"
+    rebaseonly= "!git rebase --interactive $(git merge-base $1 HEAD) #"
 [rebase]
 	autosquash = true
 	updateRefs = true
