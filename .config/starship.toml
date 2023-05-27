@@ -63,7 +63,8 @@ format = " [${symbol} (${version})]($style)"
 style = "#5382a1"
 
 [jobs]
-symbol = " "
+symbol = " 󰒓 "
+style = "blue"
 
 [username]
 format = "[$user]($style)"
