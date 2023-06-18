@@ -7,6 +7,7 @@ if status --is-interactive
     command -q starship; and starship init fish | source
     set -e STARSHIP_SHELL # Breaks iterm shell integration
     command -q oc; and oc completion fish | source
+    command -q zoxide; and zoxide init fish | source
     test -e {$HOME}/.iterm2_shell_integration.fish; and source {$HOME}/.iterm2_shell_integration.fish
     abbr -a -- nano micro
     abbr -a -- cat bat
@@ -15,4 +16,5 @@ if status --is-interactive
     abbr -a -- watch viddy
     abbr -a -- edit micro
     abbr -a -- pico micro
+    abbr -a -- cd z
 end
