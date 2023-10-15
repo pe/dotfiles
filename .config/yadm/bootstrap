@@ -3,27 +3,22 @@
 echo "Updating the yadm repository origin to SSH"
 yadm remote set-url origin git@github.com:pe/dotfiles.git
 
-system_type=$(uname -s)
+if [ -s "$HOME/.config/brewfile" ]; then
+    echo "Updating homebrew bundle"
+    brew bundle --file "$HOME/.config/brewfile"
+fi
 
-if [ "$system_type" = "Darwin" ]; then
+echo "Remove quarantine attribute from homebrew's quick look plugins"
+xattr -d -r com.apple.quarantine ~/Library/QuickLook
 
-    if [ -s "$HOME/.config/brewfile" ]; then
-        echo "Updating homebrew bundle"
-        brew bundle --file "$HOME/.config/brewfile"
-    fi
+if [ -s "$HOME/.config/iterm2/com.googlecode.iterm2.plist" ]; then
+    echo "Syncing iTerm2 preferences"
+    defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.config/iterm2"
+    defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
+fi
 
-    echo "Remove quarantine attribute from homebrew's quick look plugins"
-    xattr -d -r com.apple.quarantine ~/Library/QuickLook
-
-    if [ -s "$HOME/.config/iterm2/com.googlecode.iterm2.plist" ]; then
-        echo "Syncing iTerm2 preferences"
-        defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.config/iterm2"
-        defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
-    fi
-
-    echo "Making fish the default shell"
-    if [ "$CI" != "true" ]; then
-        echo "$(brew --prefix)/bin/fish" | sudo tee -a /etc/shells
-        chsh -s "$(brew --prefix)/bin/fish"
-    fi
+echo "Making fish the default shell"
+if [ "$CI" != "true" ]; then
+    echo "$(brew --prefix)/bin/fish" | sudo tee -a /etc/shells
+    chsh -s "$(brew --prefix)/bin/fish"
 fi
