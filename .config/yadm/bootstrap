@@ -3,6 +3,13 @@
 echo "Updating the yadm repository origin to SSH"
 yadm remote set-url origin git@github.com:pe/dotfiles.git
 
+echo "Configuring sudo authentication using TouchID"
+if [ ! -f "/etc/pam.d/sudo_local" ]; then
+    echo "auth       sufficient     pam_tid.so" > "/etc/pam.d/sudo_local"
+else
+    echo "/etc/pam.d/sudo_local already exists. Add 'auth       sufficient     pam_tid.so' manually."
+fi
+
 if [ -s "$HOME/.config/brewfile" ]; then
     echo "Updating homebrew bundle"
     brew bundle --file "$HOME/.config/brewfile"
