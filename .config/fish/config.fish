@@ -12,7 +12,7 @@ if status --is-interactive
     abbr -a -- nano micro
     abbr -a -- cat bat
     abbr -a -- find fd
-    abbr -a -- ls exa
+    abbr -a -- ls eza
     abbr -a -- watch viddy
     abbr -a -- edit micro
     abbr -a -- pico micro
