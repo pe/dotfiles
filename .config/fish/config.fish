@@ -17,4 +17,7 @@ if status --is-interactive
     abbr -a -- edit micro
     abbr -a -- pico micro
     abbr -a -- cd z
+
+    set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
+    set -gx MANROFFOPT "-c"
 end
