@@ -1,6 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR --export EDITOR:micro
+SETUVAR --export VISUAL:micro
 SETUVAR __fish_init_3_x:\x1d
 SETUVAR __fish_initialized:3400
 SETUVAR fish_color_autosuggestion:585858
