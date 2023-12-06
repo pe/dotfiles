@@ -49,3 +49,5 @@
 	autocorrect = 15
 [trim]
 	protected = *release/*,*hotfix/*
+[submodule]
+	recurse = true
