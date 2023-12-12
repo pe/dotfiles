@@ -51,3 +51,5 @@
 	protected = *release/*,*hotfix/*
 [submodule]
 	recurse = true
+[maintenance "gc"]
+	schedule = weekly
