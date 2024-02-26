@@ -32,7 +32,7 @@
 [mergetool "vscode"]
 	cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
 [mergetool "intellij"]
-	cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea merge $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\") $(cd $(dirname \"$BASE\") && pwd)/$(basename \"$BASE\") $(cd $(dirname \"$MERGED\") && pwd)/$(basename \"$MERGED\") &>/dev/null
+	cmd = open -nWa 'IntelliJ IDEA.app' --args merge $(realpath $LOCAL) $(realpath $REMOTE) $(realpath $BASE) $(realpath $MERGED)
 	trustExitCode = true
 [diff]
 	algorithm = histogram
@@ -40,7 +40,7 @@
 [difftool "vscode"]
 	cmd = code --wait --diff $LOCAL $REMOTE
 [difftool "intellij"]
-	cmd = /Applications/IntelliJ\\ IDEA.app/Contents/MacOS/idea diff $(cd $(dirname \"$LOCAL\") && pwd)/$(basename \"$LOCAL\") $(cd $(dirname \"$REMOTE\") && pwd)/$(basename \"$REMOTE\")
+	cmd = open -nWa 'IntelliJ IDEA.app' --args diff $(realpath "$LOCAL") $(realpath "$REMOTE")
 [delta]
 	features = arctic-fox
 [delta "arctic-fox"]
