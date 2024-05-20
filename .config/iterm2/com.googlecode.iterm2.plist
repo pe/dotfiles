@@ -1740,7 +1740,7 @@
 					<key>font</key>
 					<string>.AppleSystemUIFont 12</string>
 					<key>remove empty components</key>
-					<false/>
+					<true/>
 				</dict>
 				<key>components</key>
 				<array>
@@ -1782,7 +1782,7 @@
 								<key>font</key>
 								<string>.AppleSystemUIFont 12</string>
 								<key>remove empty components</key>
-								<false/>
+								<true/>
 							</dict>
 							<key>registration request</key>
 							<data>
@@ -1875,7 +1875,7 @@
 								<key>font</key>
 								<string>.AppleSystemUIFont 12</string>
 								<key>remove empty components</key>
-								<false/>
+								<true/>
 							</dict>
 							<key>registration request</key>
 							<data>
