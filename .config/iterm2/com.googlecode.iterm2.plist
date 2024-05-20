@@ -1759,18 +1759,20 @@
 								<real>+infinity</real>
 								<key>minwidth</key>
 								<string>0</string>
+								<key>shared font</key>
+								<string></string>
 								<key>shared text color</key>
 								<dict>
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.0</real>
+									<real>0.27345383167266846</real>
 									<key>Color Space</key>
-									<string>sRGB</string>
+									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.80000000000000004</real>
+									<real>0.80772227048873901</real>
 									<key>Red Component</key>
-									<real>1</real>
+									<real>0.96841150522232056</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -1852,18 +1854,20 @@
 								<real>+infinity</real>
 								<key>minwidth</key>
 								<string>0</string>
+								<key>shared font</key>
+								<string></string>
 								<key>shared text color</key>
 								<dict>
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.0</real>
+									<real>0.21529722213745117</real>
 									<key>Color Space</key>
-									<string>sRGB</string>
+									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.0</real>
+									<real>0.21577721834182739</real>
 									<key>Red Component</key>
-									<real>0.93333333333333335</real>
+									<real>0.78896218538284302</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -1877,74 +1881,43 @@
 								<key>remove empty components</key>
 								<true/>
 							</dict>
-							<key>registration request</key>
-							<data>
-							Cgljb3JvdXRpbmUSBwoF
-							a25vYnMSBwoFdmFsdWUi
-							HwoFdmFsdWUSFml0ZXJt
-							Mi51c2VyLm9wZW5zaGlm
-							dD8oA0L/BgoJb3BlbnNo
-							aWZ0Ei5UaGUgY3VycmVu
-							dGx5IGNvbmZpZ3VyZWQg
-							cHJvamVjdCBmb3Igb3Bl
-							bnNoaWZ0Igtwcm9qZWN0
-							bmFtZTINY29tLm9wZW5z
-							aGlmdDqRAgqJAolQTkcN
-							ChoKAAAADUlIRFIAAAAQ
-							AAAAEQgEAAAAfqbkTwAA
-							ANBJREFUeAGtwU8rgwEc
-							AOCnTaklu+3AwdVNChcl
-							5RssO+woB0e15KRchFoh
-							blxc1srFSUmcfYWd7DKU
-							8qdclqWf2tZea9c9jyGb
-							sa6sZN6IAZOqQggh1Czp
-							k9MQft06c+1d+LFqQVfK
-							g1A3q2PckXMtd0a1LQst
-							cxLT9q3pORBupCUqQlVP
-							2ZtPOxIbmp5VdKUdKspI
-							ZG0Lj9pWvKhL+S+jJuxp
-							m9AUju3K6RhzJXyZ0pVX
-							8C18uLTlREMIeX0WPQkh
-							hPCqaEBGwal7FzZlDc0f
-							knBEpTmjxVQAAAAASUVO
-							RK5CYIIVAACAPzqRBAqJ
-							BIlQTkcNChoKAAAADUlI
-							RFIAAAAgAAAAIggGAAAA
-							PrLb/wAAAdBJREFUeAHt
-							0gOsXEEUgOHatm3bZlTb
-							doPajWrbtm3btm27XZ7+
-							G97Mcu6+F94/+WLMnHOi
-							WFmZLDuaowcGoQMqIzEi
-							rZQYjWcQP2zYhrqIsKJh
-							OH5DNOxERoRVchyCmPQD
-							jWCqqNgHCeInJAAbakK7
-							wRCo3qInSiMJPGVGSyyA
-							DaL4gTZYhIEIWnk4IAZO
-							TEciBCo3rkNwG//ghEBg
-							C3YbifASouiNUEuEIvDU
-							H4KPmIUyCFgbiGILzBQD
-							9bAAMRFSm9WdIwl0Kojp
-							+ADBI4RUHPyCGIyHbgMh
-							itIIWg6IogZSQ6c0cJi5
-							oaIQCNxw4iJ+QLe7EIO1
-							6ItJ8Fs57MBKuCEQuBAT
-							Op3EN7zCP7gh2ISg1Ybg
-							LoYgE3Qrjjg4CzFYioAl
-							RT90R7glwV+IwXD4rAG2
-							wAbBPIRbX4iiIHx2DGLw
-							AQlgtkLq7/EYfmsLUayA
-							pxjIjFCLj7sQxSD4LTae
-							QQxs2IgP+IvWCFZJXIIo
-							DiMaAtYSrzAGByFQHURH
-							5FaOrRTmwgVRvEcaBC0q
-							osNTQlyGBPAR7yEBuFAT
-							pkqF6xCTbOiGsIqFkbBB
-							NNxHCURY+bAYXyF+uHEJ
-							LREdkVIsVENXjMVoDEBT
-							pIJWVlb/AVVnGgzuL8N7
-							AAAAAElFTkSuQmCCFQAA
-							AEA=
-							</data>
+							<key>registration request v2</key>
+							<string>Cgljb3JvdXRpbmUSBwoFa25vYnMSBwoFdmFsdWUiHwoFdmFsdWUSFml0ZXJtMi51c2VyLm9wZW5zaGlmdD8oA0L3BgoJb3BlbnNoaWZ0EiRUaGUgY3VycmVudCBhY3RpdmUgb3BlbnNoaWZ0IHByb2plY3QiC3Byb2plY3RuYW1lMg1jb20ub3BlbnNoaWZ0OpECCokCiVBORw0KGgoAAAANSUhEUgAAABAAAAARCAQAAAB+puRPAAAA0ElEQVR4Aa3BTyuDARwA4KdNqSW77cDB1U0KFyXlGyw77CgHR7XkpFyEWiFuXFzWysVJSZx9hZ3sMpTyp1yWpZ/a1l5r1z2PIZuxrqxk3ogBk6pCCCHULOmT0xB+3Tpz7V34sWpBV8qDUDerY9yRcy13RrUtCy1zEtP2rek5EG6kJSpCVU/Zm087EhuanlV0pR0qykhkbQuP2la8qEv5L6Mm7Gmb0BSO7crpGHMlfJnSlVfwLXy4tOVEQwh5fRY9CSGE8KpoQEbBqXsXNmUNzR+ScESlOaPFVAAAAABJRU5ErkJgghUAAIA/OpEECokEiVBORw0KGgoAAAANSUhEUgAAACAAAAAiCAYAAAA+stv/AAAB0ElEQVR4Ae3SA6xcQRSA4dq2bdtmVNt2g9qNatu2bdu2bbtdnv4b3sxy7r4X3j/5Ysycc6JYWZksO5qjBwahAyojMSKtlBiNZxA/bNiGuoiwomE4fkM07ERGhFVyHIKY9AONYKqo2AcJ4ickABtqQrvBEKjeoidKIwk8ZUZLLIANoviBNliEgQhaeTggBk5MRyIEKjeuQ3Ab/+CEQGALdhuJ8BKi6I1QS4Qi8NQfgo+YhTIIWBuIYgvMFAP1sAAxEVKb1Z0jCXQqiOn4AMEjhFQc/IIYjIduAyGK0ghaDoiiBlJDpzRwmLmhohAI3HDiIn5At7sQg7Xoi0nwWznswEq4IRC4EBM6ncQ3vMI/uCHYhKDVhuAuhiATdCuOODgLMViKgCVFP3RHuCXBX4jBcPisAbbABsE8hFtfiKIgfHYMYvABCWC2Qurv8Rh+awtRrICnGMiMUIuPuxDFIPgtNp5BDGzYiA/4i9YIVklcgigOIxoC1hKvMAYHIVAdREfkVo6tFObCBVG8RxoELSqiw1NCXIYE8BHvIQG4UBOmSoXrEJNs6IawioWRsEE03EcJRFj5sBhfIX64cQktER2RUixUQ1eMxWgMQFOkglZWVv8BVWcaDO4vw3sAAAAASUVORK5CYIIVAAAAQEAA</string>
+						</dict>
+					</dict>
+					<dict>
+						<key>class</key>
+						<string>iTermStatusBarHostnameComponent</string>
+						<key>configuration</key>
+						<dict>
+							<key>knobs</key>
+							<dict>
+								<key>abbreviate-localhost</key>
+								<string></string>
+								<key>base: compression resistance</key>
+								<integer>1</integer>
+								<key>base: priority</key>
+								<real>5</real>
+								<key>maxwidth</key>
+								<real>+infinity</real>
+								<key>minwidth</key>
+								<string>0</string>
+								<key>path</key>
+								<string>hostname</string>
+								<key>shared font</key>
+								<string></string>
+							</dict>
+							<key>layout advanced configuration dictionary value</key>
+							<dict>
+								<key>algorithm</key>
+								<integer>0</integer>
+								<key>auto-rainbow style</key>
+								<integer>0</integer>
+								<key>font</key>
+								<string>.AppleSystemUIFont 12</string>
+								<key>remove empty components</key>
+								<true/>
+							</dict>
 						</dict>
 					</dict>
 				</array>
