@@ -28,7 +28,7 @@ async def calculate():
         return [" – ".join(filter(None, [ahead_behind, " ".join(paths)])),
                 " – ".join(filter(None, [ahead_behind, " ".join(filenames)])),
                 " – ".join(filter(None, [ahead_behind, file_count]))]
-    return "✓"
+    return ""
 
 async def main(connection):
     component = iterm2.StatusBarComponent(
