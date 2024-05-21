@@ -20,7 +20,7 @@ async def calculate():
     if stderr:
         stderr_decoded = stderr.decode()
         if "(Unauthorized)" in stderr_decoded:
-            return 'Not logged in'
+            return ''
         return [f'{textwrap.shorten(stderr_decoded, width=width, placeholder="…")}'
                 for width in [20, 40, 60, 80, 100, 120]]
 
