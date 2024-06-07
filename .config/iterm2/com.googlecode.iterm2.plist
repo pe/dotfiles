@@ -1016,6 +1016,8 @@
 				<key>Red Component</key>
 				<real>0.1019607843137255</real>
 			</dict>
+			<key>Brighten Bold Text</key>
+			<true/>
 			<key>Character Encoding</key>
 			<integer>4</integer>
 			<key>Close Sessions On End</key>
@@ -1954,7 +1956,7 @@
 			<key>Use Bold Font</key>
 			<true/>
 			<key>Use Bright Bold</key>
-			<true/>
+			<false/>
 			<key>Use Canonical Parser</key>
 			<false/>
 			<key>Use Italic Font</key>
