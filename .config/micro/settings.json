@@ -2,6 +2,7 @@
     "backupdir": "~/.cache/micro/backups",
     "colorscheme": "simple",
     "hlsearch": true,
+    "hltrailingws": true,
     "statusformatl": "$(filename) $(modified)",
     "statusformatr": "$(status.paste) $(opt:filetype) $(line),$(col)"
 }
