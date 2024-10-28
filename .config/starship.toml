@@ -13,7 +13,8 @@ $character"""
 right_format = """
 $cmd_duration\
 $java\
-$jobs"""
+$jobs\
+$shlvl"""
 
 [cmd_duration]
 format = " [ $duration]($style)"
@@ -68,3 +69,7 @@ style = "blue"
 
 [username]
 format = "[$user]($style)"
+
+[shlvl]
+disabled = false
+format = '⤷ $shlvl'
