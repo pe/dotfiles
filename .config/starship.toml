@@ -8,7 +8,7 @@ $git_branch\
 $git_commit\
 $git_state\
 $git_status\
-$character"""
+\n$character"""
 
 right_format = """
 $cmd_duration\
@@ -21,24 +21,24 @@ format = " [ $duration]($style)"
 style = "bright-black"
 
 [directory]
-truncation_length = 4
-fish_style_pwd_dir_length = 2
+truncation_length = 10
+fish_style_pwd_dir_length = 3
 truncate_to_repo = false
 read_only = ""
 style = "grey"
 
 [git_branch]
-symbol = ""
-style = "#f1502f"
-format = "[$symbol]($style)$branch "
+symbol = " "
+format = "[$symbol$branch]($style) "
 only_attached = true
+style = "purple"
 
 [git_commit]
 only_detached = true
-format = "[]($style)$hash$tag "
-style = "#f1502f"
+format = "[ $hash$tag]($style) "
 tag_disabled = false
 tag_symbol = "  "
+style = "purple"
 
 [git_status]
 format = '([$all_status$ahead_behind]($style) )'
@@ -52,10 +52,10 @@ staged = "•$count"
 renamed = "»$count"
 deleted = "✘$count"
 stashed = "⚑$count"
-style = "white"
+style = "blue"
 
 [hostname]
-format = "@[$hostname]($style):"
+format = "[$hostname]($style):"
 
 [java]
 version_format = "${major}"
@@ -68,7 +68,7 @@ symbol = " 󰒓 "
 style = "blue"
 
 [username]
-format = "[$user]($style)"
+format = "[$user]($style)@"
 
 [shlvl]
 disabled = false
