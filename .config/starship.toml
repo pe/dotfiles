@@ -8,7 +8,7 @@ $git_branch\
 $git_commit\
 $git_state\
 $git_status\
-\n$character"""
+$character"""
 
 right_format = """
 $cmd_duration\
