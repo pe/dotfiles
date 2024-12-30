@@ -12,9 +12,10 @@
 [feature]
 	manyFiles = false
 [alias]
-	ls = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)'
+	ls  = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)'
 	lsa = log --format=format:'%C(magenta)%h %C(cyan)%ah %C(green)%an %C(white)%s %C(auto)%D%C(reset)' --graph --all
 	rebaseonly= "!git rebase --interactive $(git merge-base $1 HEAD) #"
+	staash = stash --all
 [rebase]
 	autosquash = true
 	updateRefs = true
@@ -23,7 +24,7 @@
 [pull]
 	rebase = true
 [rerere]
-	enabled = false
+	enabled = true
 [merge]
 	tool = intellij
 	conflictstyle = zdiff3
