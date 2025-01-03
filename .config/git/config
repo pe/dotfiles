@@ -21,6 +21,7 @@
 	updateRefs = true
 [push]
 	default = current
+	useForceIfIncludes = true
 [pull]
 	rebase = true
 [rerere]
