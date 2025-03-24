@@ -8,6 +8,8 @@
 	<true/>
 	<key>AutoCommandHistory</key>
 	<false/>
+	<key>BounceOnInactiveBell</key>
+	<true/>
 	<key>BracketedPasteMode</key>
 	<true/>
 	<key>ConvertDosNewlines</key>
