@@ -7,6 +7,7 @@
 	untrackedCache = true #until we can enable manyFiles again
 [fetch]
 	prune = true
+	pruneTags = true
 [interactive]
 	diffFilter = delta --color-only
 [feature]
@@ -19,13 +20,16 @@
 [rebase]
 	autosquash = true
 	updateRefs = true
+	autoStash = true
 [push]
 	useForceIfIncludes = true
 	autoSetupRemote = true
+	followTags = true
 [pull]
 	rebase = true
 [rerere]
 	enabled = true
+	autoUpdate = true
 [merge]
 	tool = intellij
 	conflictstyle = zdiff3
@@ -39,19 +43,23 @@
 [diff]
 	algorithm = histogram
 	tool = intellij
+	colorMoved = default
+	mnemonicPrefix = true
 [difftool "vscode"]
 	cmd = code --wait --diff $LOCAL $REMOTE
 [difftool "intellij"]
 	cmd = open -nWa 'IntelliJ IDEA.app' --args diff $(realpath "$LOCAL") $(realpath "$REMOTE")
 [delta]
 	features = tokyonight
+	hyperlinks = true
+	hyperlinks-file-link-format = "idea://open?file={path}&line={line}"
 [delta "tokyonight"]
 	dark = true
 	syntax-theme = "tokyonight_night"
 	file-style = omit
-	hunk-header-decoration-style = ul
-	hunk-header-file-style = bold
-	hunk-header-style = file
+	hunk-header-style = file syntax
+	hunk-header-file-style = normal
+	hunk-header-decoration-style = omit
 	line-numbers = true
 	blame-code-style = syntax
 	blame-format = "{author:<18} {commit:<6} {timestamp:<15}"
@@ -67,6 +75,12 @@
 	plus-empty-line-marker-style = syntax "#20303b"
 	line-numbers-plus-style = "#266d6a"
 	line-numbers-zero-style = "#3b4261"
+    blame-palette = "#1a1b26 #414868 #565f89"
+    map-styles = \
+       bold purple => syntax "#330f29", \
+       bold blue => syntax "#271344", \
+       bold cyan => syntax "#0d3531", \
+       bold yellow => syntax "#222f14"
 [help]
 	autocorrect = 15
 [trim]
@@ -75,3 +89,5 @@
 	recurse = true
 [maintenance "gc"]
 	schedule = weekly
+[tag]
+	sort = version:refname
