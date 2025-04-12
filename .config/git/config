@@ -82,7 +82,7 @@
        bold cyan => syntax "#0d3531", \
        bold yellow => syntax "#222f14"
 [help]
-	autocorrect = 15
+	autocorrect = prompt
 [trim]
 	protected = *release/*,*hotfix/*
 [submodule]
