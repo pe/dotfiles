@@ -11,4 +11,4 @@ printf "[user]\n\tname = %s\n" (id -F) >> ~/.config/git/local
 printf "\temail = %s" EMAIL_HERE >> ~/.config/git/local
 ```
 
-Upload SSH Key to Github
+Upload SSH Key [to Github](https://github.com/settings/keys)
