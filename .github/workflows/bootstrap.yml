@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Run ShellCheck
       uses: ludeeus/action-shellcheck@master
-    - uses: fish-actions/install-fish@v1
+    - uses: fish-actions/install-fish@v1.2
     - uses: fish-actions/syntax-check@v1
       
   bootstrap:
