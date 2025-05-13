@@ -33,7 +33,7 @@ fi
 echo "Generating SSH Key"
 ssh-keygen -q -t ed25519 -C "$USER@$(hostname -s)" -N "" -f "$HOME/.ssh/id_ed25519"
 
-printf "[user]\n\tname = %s\n" (id -F) >> ~/.config/git/local
+printf "[user]\n\tname = %s\n" "$(id -F)" >> ~/.config/git/local
 
 echo "Setting defaults"
 #Setting Dock to auto-hide
