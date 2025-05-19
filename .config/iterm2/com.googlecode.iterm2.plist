@@ -1534,7 +1534,7 @@
 								<key>auto-rainbow style</key>
 								<integer>0</integer>
 								<key>font</key>
-								<string>.AppleSystemUIFont 12</string>
+								<string>.SFNS-Regular 12</string>
 								<key>remove empty components</key>
 								<true/>
 							</dict>
@@ -1629,47 +1629,12 @@
 								<key>auto-rainbow style</key>
 								<integer>0</integer>
 								<key>font</key>
-								<string>.AppleSystemUIFont 12</string>
+								<string>.SFNS-Regular 12</string>
 								<key>remove empty components</key>
 								<true/>
 							</dict>
 							<key>registration request v2</key>
 							<string>Cgljb3JvdXRpbmUSBwoFa25vYnMSBwoFdmFsdWUiHwoFdmFsdWUSFml0ZXJtMi51c2VyLm9wZW5zaGlmdD8oA0L3BgoJb3BlbnNoaWZ0EiRUaGUgY3VycmVudCBhY3RpdmUgb3BlbnNoaWZ0IHByb2plY3QiC3Byb2plY3RuYW1lMg1jb20ub3BlbnNoaWZ0OpECCokCiVBORw0KGgoAAAANSUhEUgAAABAAAAARCAQAAAB+puRPAAAA0ElEQVR4Aa3BTyuDARwA4KdNqSW77cDB1U0KFyXlGyw77CgHR7XkpFyEWiFuXFzWysVJSZx9hZ3sMpTyp1yWpZ/a1l5r1z2PIZuxrqxk3ogBk6pCCCHULOmT0xB+3Tpz7V34sWpBV8qDUDerY9yRcy13RrUtCy1zEtP2rek5EG6kJSpCVU/Zm087EhuanlV0pR0qykhkbQuP2la8qEv5L6Mm7Gmb0BSO7crpGHMlfJnSlVfwLXy4tOVEQwh5fRY9CSGE8KpoQEbBqXsXNmUNzR+ScESlOaPFVAAAAABJRU5ErkJgghUAAIA/OpEECokEiVBORw0KGgoAAAANSUhEUgAAACAAAAAiCAYAAAA+stv/AAAB0ElEQVR4Ae3SA6xcQRSA4dq2bdtmVNt2g9qNatu2bdu2bbtdnv4b3sxy7r4X3j/5Ysycc6JYWZksO5qjBwahAyojMSKtlBiNZxA/bNiGuoiwomE4fkM07ERGhFVyHIKY9AONYKqo2AcJ4ickABtqQrvBEKjeoidKIwk8ZUZLLIANoviBNliEgQhaeTggBk5MRyIEKjeuQ3Ab/+CEQGALdhuJ8BKi6I1QS4Qi8NQfgo+YhTIIWBuIYgvMFAP1sAAxEVKb1Z0jCXQqiOn4AMEjhFQc/IIYjIduAyGK0ghaDoiiBlJDpzRwmLmhohAI3HDiIn5At7sQg7Xoi0nwWznswEq4IRC4EBM6ncQ3vMI/uCHYhKDVhuAuhiATdCuOODgLMViKgCVFP3RHuCXBX4jBcPisAbbABsE8hFtfiKIgfHYMYvABCWC2Qurv8Rh+awtRrICnGMiMUIuPuxDFIPgtNp5BDGzYiA/4i9YIVklcgigOIxoC1hKvMAYHIVAdREfkVo6tFObCBVG8RxoELSqiw1NCXIYE8BHvIQG4UBOmSoXrEJNs6IawioWRsEE03EcJRFj5sBhfIX64cQktER2RUixUQ1eMxWgMQFOkglZWVv8BVWcaDO4vw3sAAAAASUVORK5CYIIVAAAAQEAA</string>
-						</dict>
-					</dict>
-					<dict>
-						<key>class</key>
-						<string>iTermStatusBarHostnameComponent</string>
-						<key>configuration</key>
-						<dict>
-							<key>knobs</key>
-							<dict>
-								<key>abbreviate-localhost</key>
-								<string></string>
-								<key>base: compression resistance</key>
-								<integer>1</integer>
-								<key>base: priority</key>
-								<real>5</real>
-								<key>maxwidth</key>
-								<real>+infinity</real>
-								<key>minwidth</key>
-								<string>0</string>
-								<key>path</key>
-								<string>hostname</string>
-								<key>shared font</key>
-								<string></string>
-							</dict>
-							<key>layout advanced configuration dictionary value</key>
-							<dict>
-								<key>algorithm</key>
-								<integer>0</integer>
-								<key>auto-rainbow style</key>
-								<integer>0</integer>
-								<key>font</key>
-								<string>.AppleSystemUIFont 12</string>
-								<key>remove empty components</key>
-								<true/>
-							</dict>
 						</dict>
 					</dict>
 				</array>
