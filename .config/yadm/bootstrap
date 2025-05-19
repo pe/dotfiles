@@ -18,6 +18,9 @@ fi
 echo "Remove quarantine attribute from homebrew's quick look plugins"
 xattr -d -r com.apple.quarantine ~/Library/QuickLook
 
+echo "Cache bat themes"
+bat cache --build
+
 if [ -s "$HOME/.config/iterm2/com.googlecode.iterm2.plist" ]; then
     echo "Syncing iTerm2 preferences"
     defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.config/iterm2"
