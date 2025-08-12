@@ -1,0 +1,5 @@
+set completion-ignore-case on      # Perform file completion in a case insensitive fashion
+set completion-map-case on         # Treat hyphens and underscores as equivalent
+set show-all-if-unmodified on      # https://stackoverflow.com/questions/42192384/show-all-if-ambiguous-vs-show-all-if-unmodified
+"\e[A": history-search-backward    # CursorUp moves backward through the history of lines starting with what is typed
+"\e[B": history-search-forward     # CursorDwn moves forward through the history of lines starting with what is typed
