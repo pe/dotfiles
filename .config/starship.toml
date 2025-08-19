@@ -8,6 +8,7 @@ $git_branch\
 $git_commit\
 $git_state\
 $git_status\
+$shell\
 $character"""
 
 right_format = """
@@ -73,3 +74,10 @@ format = "[$user]($style)@"
 [shlvl]
 disabled = false
 format = '⤷ $shlvl'
+
+[shell]
+disabled = false
+format = '[$indicator]($style)'
+style = 'green'
+fish_indicator = ''
+bash_indicator = '󰯯 '

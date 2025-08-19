@@ -24,6 +24,5 @@ HISTTIMEFORMAT='%F %T '
 # Move history out of the way
 HISTFILE=$HOME/.local/share/bash/history
 
-PROMPT_COMMAND='PS1_CMD1=$(git branch --show-current 2>/dev/null)'; PS1='\w \[\e[35m\] ${PS1_CMD1}\[\e[0m\] \[\e[32m\]\$\[\e[0m\] '
-
 alias ls='eza --icons=auto --group-directories-first'
+eval "$(starship init bash)"
