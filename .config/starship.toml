@@ -33,6 +33,7 @@ symbol = " "
 format = "[$symbol$branch]($style) "
 only_attached = true
 style = "purple"
+truncation_length = 40
 
 [git_commit]
 only_detached = true
