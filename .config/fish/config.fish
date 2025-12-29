@@ -19,7 +19,7 @@ if status --is-interactive
 
     set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
     set -gx MANROFFOPT "-c"
-    set -gx HOMEBREW_CASK_OPTS "--fontdir=/Library/Fonts --no-quarantine"
+    set -gx HOMEBREW_CASK_OPTS "--fontdir=/Library/Fonts"
 
     fish_config theme choose tokyonight_night
 end
