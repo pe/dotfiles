@@ -85,4 +85,5 @@ disabled = false
 format = '[$indicator]($style)'
 style = 'green'
 fish_indicator = ''
-bash_indicator = 'ℬ '
+bash_indicator = '󰫯 '
+zsh_indicator = '󰬇 '
