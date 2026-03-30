@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # shellcheck disable=SC2148

@@ -1,9 +1,11 @@
+# shellcheck shell=sh
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Move history out of the way
 HISTFILE=$HOME/.local/share/zsh/history
 # Huge history
 HISTSIZE=500000
+# shellcheck disable=SC2034
 SAVEHIST=500000
 # share history across multiple zsh sessions
 setopt SHARE_HISTORY
