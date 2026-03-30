@@ -15,9 +15,6 @@ if [ -s "$HOME/.config/brewfile" ]; then
     brew bundle --file "$HOME/.config/brewfile"
 fi
 
-echo "Remove quarantine attribute from homebrew's quick look plugins"
-xattr -d -r com.apple.quarantine ~/Library/QuickLook
-
 echo "Cache bat themes"
 bat cache --build
 
