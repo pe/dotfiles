@@ -1,3 +1,5 @@
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # shellcheck disable=SC2148
 # Prevent file overwrite on stdout redirection
 # Use `>|` to force redirection to an existing file
@@ -25,4 +27,5 @@ HISTTIMEFORMAT='%F %T '
 HISTFILE=$HOME/.local/share/bash/history
 
 alias ls='eza --icons=auto --group-directories-first'
+
 eval "$(starship init bash)"
