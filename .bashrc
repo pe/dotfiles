@@ -30,3 +30,8 @@ HISTFILE=$HOME/.local/share/bash/history
 alias ls='eza --icons=auto --group-directories-first'
 
 eval "$(starship init bash)"
+
+# Local environment variables
+set -a
+[[ -f $HOME/.config/environment.local ]] && source "$HOME/.config/environment.local"
+set +a

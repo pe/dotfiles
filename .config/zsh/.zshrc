@@ -1,4 +1,4 @@
-# shellcheck shell=sh
+# shellcheck shell=bash
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Move history out of the way
@@ -30,3 +30,8 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|[._-]=* r:|=*'
 alias ls='eza --icons=auto --group-directories-first'
 
 eval "$(starship init zsh)"
+
+# Local environment variables
+set -a
+[[ -f $HOME/.config/environment.local ]] && source "$HOME/.config/environment.local"
+set +a
