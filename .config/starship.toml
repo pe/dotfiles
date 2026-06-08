@@ -74,6 +74,7 @@ symbol = " 󰒓 "
 style = "blue"
 
 [username]
+detect_env_vars = ['SUDO_USER']
 format = "[$user]($style)@"
 
 [shlvl]
