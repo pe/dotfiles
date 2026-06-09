@@ -4,3 +4,4 @@ font-size = "15"
 auto-update = off
 notify-on-command-finish = unfocused
 macos-titlebar-style = tabs
+scrollback-limit = 100000000
