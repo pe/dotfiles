@@ -35,3 +35,5 @@ eval "$(starship init zsh)"
 set -a
 [[ -f $HOME/.config/environment.local ]] && source "$HOME/.config/environment.local"
 set +a
+
+alias python="python3"
