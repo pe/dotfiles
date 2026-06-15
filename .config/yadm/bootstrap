@@ -18,12 +18,6 @@ fi
 echo "Cache bat themes"
 bat cache --build
 
-if [ -s "$HOME/.config/iterm2/com.googlecode.iterm2.plist" ]; then
-    echo "Syncing iTerm2 preferences"
-    defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.config/iterm2"
-    defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
-fi
-
 echo "Making fish the default shell"
 if [ "$CI" != "true" ]; then
     echo "$(brew --prefix)/bin/fish" | sudo tee -a /etc/shells
