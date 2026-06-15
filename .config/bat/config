@@ -1,2 +1,4 @@
---theme="tokyonight_night"
+--theme auto:system
+--theme-dark="tokyonight_night"
+--theme-light="tokyonight_day"
 --style=numbers,changes # no grid, no file header

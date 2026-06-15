@@ -21,7 +21,7 @@ if status --is-interactive
     set -gx MANROFFOPT "-c"
     set -gx HOMEBREW_CASK_OPTS "--fontdir=/Library/Fonts"
 
-    fish_config theme choose tokyonight_night
+    fish_config theme choose tokyonight
 
     # Local environment variables
     test -e {$HOME}/.config/environment.local; and export (cat {$HOME}/.config/environment.local |xargs -L 1)

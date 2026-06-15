@@ -1,4 +1,4 @@
-theme = tokyonight
+theme = light:TokyoNight Day,dark:TokyoNight
 font-family = "IosevkaTerm NFM"
 font-size = "15"
 auto-update = off
