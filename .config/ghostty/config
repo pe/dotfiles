@@ -1,6 +1,6 @@
 theme = light:TokyoNight Day,dark:TokyoNight
-font-family = "IosevkaTerm NFM"
-font-size = "15"
+font-family = "0xProto Nerd Font"
+font-size = "13"
 auto-update = off
 notify-on-command-finish = unfocused
 macos-titlebar-style = tabs
