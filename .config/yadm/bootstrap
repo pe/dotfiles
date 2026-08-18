@@ -25,7 +25,8 @@ if [ "$CI" != "true" ]; then
 fi
 
 echo "Generating SSH Key"
-ssh-keygen -q -t ed25519 -C "$USER@$(hostname -s)" -N "" -f "$HOME/.ssh/id_ed25519"
+ssh-keygen -q -t ed25519 -C "$USER@$(hostname -s)" -f "$HOME/.ssh/id_ed25519"
+ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519"
 
 printf "[user]\n\tname = %s\n" "$(id -F)" >> ~/.config/git/local
 
