@@ -26,3 +26,13 @@ end
 
 # Local environment variables
 test -e {$HOME}/.config/environment.local; and export (cat {$HOME}/.config/environment.local |xargs -L 1)
+
+# Jira PAT — read from the macOS Keychain
+# Keychain item was created with:
+#   security add-generic-password -a "$USER" -s jira-pat -w
+# Verify without printing the token:
+#   security find-generic-password -s jira-pat -w | wc -c
+set -l JIRA_PAT (security find-generic-password -s jira-pat -w 2>/dev/null)
+if set -q JIRA_PAT[1]
+    set -gx JIRA_PAT $JIRA_PAT
+end
