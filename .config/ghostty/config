@@ -1,4 +1,4 @@
-theme = light:TokyoNight Day,dark:TokyoNight
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
 font-family = "0xProto Nerd Font"
 font-size = "13"
 auto-update = off

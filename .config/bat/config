@@ -1,4 +1,4 @@
 --theme auto:system
---theme-dark="tokyonight_night"
---theme-light="tokyonight_day"
+--theme-dark="Catppuccin Mocha"
+--theme-light="Catppuccin Latte"
 --style=numbers,changes # no grid, no file header
