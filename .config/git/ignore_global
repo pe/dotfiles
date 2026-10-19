@@ -4,3 +4,4 @@
 /subprojects/*/src/test/generated_tests/
 /subprojects/*/out/
 .java-version
+**/.claude/settings.local.json
