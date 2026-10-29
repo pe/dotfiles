@@ -3,5 +3,5 @@ font-family = "0xProto Nerd Font"
 font-size = "13"
 auto-update = off
 notify-on-command-finish = unfocused
-macos-titlebar-style = tabs
+macos-titlebar-style = native
 scrollback-limit = 100000000
