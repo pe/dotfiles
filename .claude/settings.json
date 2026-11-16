@@ -1,0 +1,7 @@
+{
+  "theme": "auto",
+  "statusLine": {
+    "type": "command",
+    "command": "python3 -I ~/.config/herdr-app/mods/pe-usage/statusline.py"
+  }
+}
