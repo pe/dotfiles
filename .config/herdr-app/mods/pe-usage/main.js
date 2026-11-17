@@ -1,11 +1,11 @@
 // Claude's plan usage at the foot of the sidebar: the five-hour session and the weekly
 // limit, as % used. Claude Code tells its status line (statusline.py, silent), which
-// keeps it in $XDG_STATE_HOME/pe-herdr/limits.json; read here every 15 seconds. It moves
+// keeps it in ~/.local/state/pe-herdr/limits.json; read here every 15 seconds. It moves
 // when a Claude Code session does, which is when it changes.
 
 import { View, div, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { exec, theme, checking } from "herdr";
+import { readTextFile, home, theme, checking } from "herdr";
 
 // "3d 12h", "2h 15m" or "40m".
 function until(ms) {
@@ -24,8 +24,7 @@ export default class Usage extends View {
 
   read(cx) {
     cx.spawn(async (cx) => {
-      const r = await exec("sh", ["-c", 'cat "${XDG_STATE_HOME:-$HOME/.local/state}/pe-herdr/limits.json"']).catch(() => null);
-      const text = r?.code === 0 ? r.stdout : null;
+      const text = await readTextFile(`${home()}/.local/state/pe-herdr/limits.json`).catch(() => null);
       if (!text || text === this.text) return;
       this.text = text;
       try { this.limits = JSON.parse(text); } catch {}

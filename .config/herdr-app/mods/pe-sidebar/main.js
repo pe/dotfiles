@@ -1,12 +1,14 @@
 // Spaces with their tabs under them, agents and terminals alike. Under each tab, its
 // sub-agents (`hc run`) and what a Claude Code there runs beside its turn: subagents,
-// background commands, scheduled prompts (work.py); on the tab, its context used. Sets
-// the window's title to "Herdr · space · session". Click to show, right-click for its
-// menu, drag a space to reorder. Worktree spaces sit under their main checkout's.
+// background commands, scheduled prompts (hook.py's files); on the tab, a line for its agent
+// (model, effort unless medium, context used) and a line of its folder's git (branch, and
+// status as starship's). Sets the window's title to "Herdr · space · session". Click to
+// show, right-click for its menu, drag a space to reorder. Worktree spaces sit under their
+// main checkout's.
 
 import { View, div, svg, image } from "gpui-kit";
 import { v_flex, h_flex, ScrollHandle } from "gpui-base";
-import { spaces, panes, agents, terminals, focused, run, openOverlay, exec, hc, appHome, theme, shared, setShared, setAgentOrder, setWindowTitle, watchFolder, window, checking } from "herdr";
+import { spaces, panes, agents, terminals, focused, run, openOverlay, exec, hc, appHome, theme, shared, setShared, setAgentOrder, setWindowTitle, watchFolder, readTextFile, home, window, checking } from "herdr";
 
 const ICONS = "mods/workspace-chrome";
 
@@ -23,16 +25,92 @@ const base = (path) => path.replace(/\/+$/, "").split("/").pop();
 // Changes made outside Herdr (an editor's save, a commit in another app): looked
 // for this often, in repos the list shows, while the window is in front.
 const FALLBACK = 60000;
+// What the hooks (hook.py) and the status line (pe-usage/statusline.py) keep for each Claude Code.
+const STATE = () => `${home()}/.local/state/pe-herdr`;
+
+// A terminal's work as rows to show now: its subagents (as hook.py keeps them) and its
+// background tasks, minus what has run out by itself (a monitor's time, a wakeup, a one-off cron).
+function workRows(w, now, agents) {
+  const sec = now / 1000;
+  const subagents = Object.entries(w?.subagents ?? {})
+    .map(([id, x]) => ({ id, desc: x.desc || x.type || "Subagent", start: x.start, file: x.file, ...agents?.[id] }))
+    .sort((a, b) => a.start - b.start);
+  const tasks = [
+    ...Object.entries(w?.tasks ?? {})
+      .filter(([, x]) => x.kind !== "monitor" || !x.until || x.until > sec)
+      .map(([id, x]) => ({ kind: x.kind, id, desc: x.desc, start: x.start, output: x.output })),
+    // A recurring cron lasts 7 days; a one-off until its time.
+    ...Object.entries(w?.crons ?? {})
+      .filter(([, x]) => (x.recurring ? sec - x.start < 7 * 86400 : x.next > sec - 120))
+      .map(([id, x]) => ({ kind: "cron", id, desc: x.desc, start: x.start, schedule: x.schedule })),
+    ...(w?.wake && w.wake.at > sec ? [{ kind: "wakeup", ...w.wake }] : []),
+  ];
+  return { subagents, tasks };
+}
+
+const readJson = async (path) => {
+  try { return JSON.parse((await readTextFile(path)) ?? "null"); } catch { return null; }
+};
+
 // Places looked at together (two git runs each).
 const AT_ONCE = 6;
 
-// Both runs, finished: a place isn't done while one of its runs still holds a slot.
-async function both(a, b) {
-  const done = await Promise.allSettled([a, b]);
+// All runs, finished: a place isn't done while one of its runs still holds a slot.
+async function both(...runs) {
+  const done = await Promise.allSettled(runs);
   const failed = done.find((d) => d.status === "rejected");
   if (failed) throw failed.reason;
   return done.map((d) => d.value);
 }
+
+// `git status --porcelain=v2 --branch --show-stash`, counted as starship's git_status does.
+function parseStatus(out) {
+  const n = { conflicted: 0, stashed: 0, deleted: 0, renamed: 0, modified: 0, staged: 0, untracked: 0, ahead: 0, behind: 0 };
+  for (const l of out.split("\n")) {
+    if (l.startsWith("# branch.ab ")) {
+      const m = /\+(\d+) -(\d+)/.exec(l);
+      if (m) [n.ahead, n.behind] = [Number(m[1]), Number(m[2])];
+    } else if (l.startsWith("# stash ")) n.stashed = Number(l.slice(8)) || 0;
+    else if (l.startsWith("? ")) n.untracked++;
+    else if (l.startsWith("u ")) n.conflicted++;
+    else if (l[0] === "1" || l[0] === "2") {
+      const x = l[2], y = l[3];
+      if (x === "D" || y === "D") n.deleted++;
+      if (l[0] === "2" && (x === "R" || y === "R")) n.renamed++;
+      if (y === "M") n.modified++;
+      if ("AMTC".includes(x)) n.staged++;
+    }
+  }
+  return n;
+}
+
+// The same marks as starship.toml's [git_status], in its order.
+function statusMarks(n) {
+  const diverged = n.ahead > 0 && n.behind > 0;
+  return [
+    n.conflicted && `☹︎${n.conflicted}`,
+    n.stashed && `⚑${n.stashed}`,
+    n.deleted && `✘${n.deleted}`,
+    n.renamed && `»${n.renamed}`,
+    n.modified && `+${n.modified}`,
+    n.staged && `•${n.staged}`,
+    n.untracked && `?${n.untracked}`,
+    diverged ? `⇡${n.ahead}⇣${n.behind}` : n.ahead > 0 ? `⇡${n.ahead}` : n.behind > 0 ? `⇣${n.behind}` : "",
+  ].filter(Boolean).join("");
+}
+
+// A model's id, as a subagent reports it, named as an agent's is: "claude-opus-4-7[1m]" -> "Opus 4.7 1M".
+const shortId = (m) => {
+  const size = /\[(\d+[mk])\]$/i.exec(m)?.[1];
+  const name = m.replace(/\[.*\]$/, "").replace(/^claude-/, "").replace(/^([a-z]+)-(\d+)-(\d+)$/, "$1 $2.$3");
+  return name.replace(/^./, (c) => c.toUpperCase()) + (size ? ` ${size.toUpperCase()}` : "");
+};
+
+// 31971 -> "32k".
+const kilo = (n) => `${Math.round(n / 1000)}k`;
+
+// "Opus 4.7 (1M context)" -> "Opus 4.7 1M".
+const shortModel = (m) => m.replace(/\s*\((\d+[MK]) context\)/i, " $1").replace(/\s*\(.*\)$/, "");
 
 // What a stored color name looks like on an avatar (the same in every mod
 // that draws space avatars): one strong color per hue, light and dark alike.
@@ -88,7 +166,7 @@ function tree(all, addr, lead = [], more = false) {
   });
 }
 
-// What work.py found, as rows: each kind's icon, and what its row says on the right.
+// What the hooks found, as rows: each kind's icon, and what its row says on the right.
 const WORK = {
   subagent: { icon: "mods/pe-sidebar/subagent.svg", tip: "Subagent" },
   shell: { icon: `${ICONS}/terminal.svg`, tip: "Background command" },
@@ -126,7 +204,7 @@ const TAB_INDENT = 27;
 
 export default class Sidebar extends View {
   init(_props, cx) {
-    this.git = {}; // where() -> { name, branch, ahead, behind, repo, linked }, null: not a repo
+    this.git = {}; // where() or a tab's folder -> { name, branch, ahead, behind, repo, linked, st }, null: not a repo
     this.checked = {}; // where() -> when it was last looked at
     this.pending = new Set(); // where()s to look at next
     this.busy = {}; // pane -> an agent working or a program in front of its shell
@@ -141,17 +219,16 @@ export default class Sidebar extends View {
     this.hovered = null;
     this.scroll = ScrollHandle.new(); // the list's position: the shown tab is brought into view through it
     this.activeAt = -1; // the shown tab's place among the list's children, -1 when not drawn
-    this.work = {}; // terminal -> { context, subagents, tasks } (work.py)
+    this.work = {}; // terminal -> { context, model, effort, subagents, tasks }, as read from the state folder
     this.viewers = {}; // subagent id or task id -> the terminal showing it live
     // Folded spaces and folded sub-agent trees, by space id / terminal address.
     try { this.folded = new Set(JSON.parse(localStorage.getItem("folded") ?? "[]")); } catch { this.folded = new Set(); }
     if (checking()) return;
     // Refresh only when the refs could have changed (see `due`).
     cx.timer.every(250, (cx) => this.checkNew(cx));
-    this.poll(cx);
-    cx.timer.every(3000, (cx) => this.poll(cx));
-    // Rows' ages move on by themselves.
-    cx.timer.every(30000, (cx) => { if (Object.keys(this.work).length) cx.notify(); });
+    this.watchWork(cx);
+    // What runs out by itself (a monitor's time, a wakeup), and rows' ages, move on without a change.
+    cx.timer.every(30000, (cx) => { if (Object.keys(this.work).length) { this.refreshWork(cx); cx.notify(); } });
   }
 
   async close() {
@@ -159,32 +236,57 @@ export default class Sidebar extends View {
     for (const t of Object.values(this.viewers)) run("terminal.kill", { terminal: t });
   }
 
-  // What each Claude Code runs beside its turn, while the window is in front and one runs;
-  // with none left, what they ran goes.
-  poll(cx) {
-    if (this.polling || window()?.active === false) return;
-    if (!panes().some((p) => p.program?.key === "claude")) {
-      if (this.workText) {
-        this.workText = null;
-        this.work = {};
-        this.prune();
-        cx.notify();
+  // Reads what the hooks and the status line keep when it changes: they write a file per
+  // terminal, in work/ and context/.
+  watchWork(cx) {
+    cx.spawn(async (cx) => {
+      await exec("mkdir", ["-p", `${STATE()}/work`, `${STATE()}/context`]).catch(() => {});
+      this.refreshWork(cx);
+      for (const dir of ["work", "context"]) {
+        cx.spawn(async (cx) => {
+          for (;;) {
+            try { await watchFolder(`${STATE()}/${dir}`); } catch { await cx.sleep(5000); continue; }
+            this.refreshWork(cx);
+          }
+        });
       }
+    });
+  }
+
+  // The state of each terminal running a Claude Code; the window redraws if it changed.
+  refreshWork(cx) {
+    if (this.reading) {
+      this.again = true;
       return;
     }
-    this.polling = true;
+    this.reading = true;
     cx.spawn(async (cx) => {
       try {
-        const r = await exec("python3", ["-I", `${appHome()}/mods/pe-sidebar/work.py`], { timeout: 20000 });
-        const text = r.code === 0 ? r.stdout.trim() : null;
-        if (text && text !== this.workText) {
+        const now = Date.now();
+        const next = {};
+        await Promise.all(panes().filter((p) => p.terminal && p.program?.key === "claude").map((p) => p.terminal).map(async (t) => {
+          const [w, c, a] = await Promise.all([readJson(`${STATE()}/work/${t}.json`), readJson(`${STATE()}/context/${t}.json`), readJson(`${STATE()}/context/${t}.agents.json`)]);
+          if (!w && !c) return;
+          next[t] = {
+            context: typeof c?.used === "number" ? Math.round(c.used) : null,
+            model: c?.model ?? null,
+            effort: c?.effort ?? null,
+            ...workRows(w, now, a),
+          };
+        }));
+        const text = JSON.stringify(next);
+        if (text !== this.workText) {
           this.workText = text;
-          this.work = JSON.parse(text);
+          this.work = next;
           this.prune();
           cx.notify();
         }
       } catch {}
-      this.polling = false;
+      this.reading = false;
+      if (this.again) {
+        this.again = false;
+        this.refreshWork(cx);
+      }
     });
   }
 
@@ -215,15 +317,15 @@ export default class Sidebar extends View {
     });
   }
 
-  // A row for what work.py found, under the tab: its icon, what it is, and its age,
+  // A row for what the hooks found, under the tab: its icon, what it is, and its age,
   // its schedule or when it wakes. A subagent or a command with output opens live.
   workRow(t, x, lines, nested) {
     const kind = WORK[x.kind];
     const now = Date.now();
     const right = x.kind === "cron" ? x.schedule : x.kind === "wakeup" ? `in ${duration(x.at * 1000 - now)}` : duration(now - x.start * 1000);
-    const live = x.kind === "subagent" ? ["python3", "-I", `${appHome()}/mods/pe-sidebar/view.py`, x.file]
+    const live = x.kind === "subagent" ? (x.file ? ["python3", "-I", `${appHome()}/mods/pe-sidebar/view.py`, x.file] : null)
       : x.output ? ["sh", "-c", 'printf "\\033]0;%s\\007" "$2"; exec tail -n +1 -F "$1"', "sh", x.output, x.desc] : null;
-    return h_flex()
+    const row = h_flex()
       .id(`work-${x.kind}-${x.id}`)
       .h(24)
       .flex_none()
@@ -240,6 +342,22 @@ export default class Sidebar extends View {
       .child(svg(kind.icon).size(13).mr(7).flex_none().text_color(t.dim))
       .child(div().flex_1().min_w(0).truncate().text_color(t.muted).child(x.desc.split("\n")[0]))
       .child(div().ml(8).flex_none().text_size(11).text_color(t.dim).child(right));
+    // A subagent's model, effort (unless medium) and context, under its row.
+    const effort = x.effort && x.effort !== "medium" ? x.effort : null;
+    if (x.kind !== "subagent" || !(x.model || effort || x.used != null)) return row;
+    const used = x.used == null ? null : Math.round(x.used);
+    return v_flex().flex_none()
+      .child(row)
+      .child(h_flex().h(15).mb(2).pl(8 + TAB_INDENT + (nested ? 22 : 0) + 6).pr(8).items_center().text_size(11).text_color(t.dim).overflow_hidden()
+        .children(lines.map((l) => div().w(9).h(15).mr(4).flex_none()
+          .when(l === "├" || l === "│", (el) => el.border_l(1.5).border_color(t.input))))
+        .child(div().w(20).flex_none())
+        .child(h_flex().gap(6).items_center()
+          .when(Boolean(x.model), (m) => m.child(div().flex_none().child(shortId(x.model))))
+          .when(Boolean(effort), (m) => m.child(div().flex_none().text_color(t.muted).child(effort)))
+          .when(used != null, (m) => m.child(div().id(`sub-ctx-${x.id}`).flex_none()
+            .when(used >= 50, (c) => c.text_color(used >= 80 ? t.ansi1 : t.ansi3))
+            .tooltip(x.tokens != null ? `Context used: ${kilo(x.tokens)} of ${kilo(x.size)} tokens` : "Context used").child(`${used}%`)))));
   }
 
   fold(key, cx) {
@@ -252,7 +370,14 @@ export default class Sidebar extends View {
     const now = Date.now();
     const sp = spaces();
     for (const s of sp) if (!this.shown.has(s.id)) this.born[s.id] ??= now;
-    const due = this.due(now, sp, panes());
+    const ps = panes();
+    const due = this.due(now, sp, ps);
+    // A Claude Code started or gone: read its state.
+    const claude = ps.filter((p) => p.terminal && p.program?.key === "claude").map((p) => p.terminal).sort().join();
+    if (claude !== this.claude) {
+      this.claude = claude;
+      this.refreshWork(cx);
+    }
     if (due.size) this.refreshGit(due, cx);
     if (sp.some((s) => !this.shown.has(s.id))) cx.notify();
   }
@@ -264,6 +389,8 @@ export default class Sidebar extends View {
     const at = {};
     for (const s of sp) at[s.id] = where(s, ps);
     const keys = new Set(Object.values(at).filter(Boolean));
+    // The folder of each tab's lead pane, for the status under its row.
+    for (const l of leadPanes(ps).values()) if (l.cwd) keys.add(l.cwd);
     for (const k of Object.keys(this.git)) if (!keys.has(k)) {
       delete this.git[k];
       delete this.checked[k];
@@ -282,7 +409,9 @@ export default class Sidebar extends View {
     for (const p of ps) {
       if (!p.terminal || !spaceOf[p.tab]) continue;
       busy[p.pane] = p.status === "working" || !(p.program?.shell || p.program?.agent);
-      if (this.busy[p.pane] && !busy[p.pane]) this.sameRepo(at[spaceOf[p.tab].id], keys).forEach((k) => due.add(k));
+      if (this.busy[p.pane] && !busy[p.pane]) {
+        for (const k of [at[spaceOf[p.tab].id], keys.has(p.cwd) ? p.cwd : null]) if (k) this.sameRepo(k, keys).forEach((r) => due.add(r));
+      }
     }
     this.busy = busy;
     if (window().active) {
@@ -316,7 +445,7 @@ export default class Sidebar extends View {
     });
   }
 
-  // One place's git: branch, ahead/behind, its repo.
+  // One place's git: branch, ahead/behind, its repo, and its status (`st`).
   async check(cwd, cx) {
     this.checked[cwd] = Date.now();
     try {
@@ -331,13 +460,15 @@ export default class Sidebar extends View {
       }
       // The repo's own .git folder names it; a worktree's top differs from it.
       const top = r.stdout.replace(/\n$/, ""), repo = common.stdout.replace(/\n$/, "");
-      const [branch, counts] = await both(
+      // The status takes no optional locks: it must not rewrite the index, or the watch on the repo would fire again.
+      const [branch, counts, status] = await both(
         exec("git", ["symbolic-ref", "-q", "HEAD"], { cwd }),
         exec("git", ["rev-list", "--left-right", "--count", "HEAD...@{upstream}"], { cwd }),
+        exec("git", ["--no-optional-locks", "status", "--porcelain=v2", "--branch", "--show-stash"], { cwd }),
       );
       const name = repo.endsWith("/.git") ? base(repo.slice(0, -5)) : base(repo).replace(/\.git$/, "");
       const [ahead, behind] = counts.code === 0 ? counts.stdout.trim().split(/\s+/).map(Number) : [0, 0];
-      this.git[cwd] = { name, branch: branch.code === 0 ? branch.stdout.trim().replace(/^refs\/heads\//, "") : "(detached)", ahead, behind, repo, linked: repo !== `${top}/.git` };
+      this.git[cwd] = { name, branch: branch.code === 0 ? branch.stdout.trim().replace(/^refs\/heads\//, "") : "(detached)", ahead, behind, repo, linked: repo !== `${top}/.git`, st: status.code === 0 ? parseStatus(status.stdout) : null };
       this.watch(repo, cx);
     } catch {
       this.git[cwd] ??= null;
@@ -357,6 +488,7 @@ export default class Sidebar extends View {
           const keys = Object.keys(this.git).filter((k) => this.git[k]?.repo === repo);
           if (!keys.length) break;
           this.refreshGit(keys, cx);
+          await cx.sleep(1000);
           current = watchFolder(repo);
           this.watching.set(repo, current);
         }
@@ -398,14 +530,11 @@ export default class Sidebar extends View {
     return out.filter((r) => this.shown.has(r.w.id));
   }
 
-  // Only what's unusual, after the name: "herdr · spike ↑2 ↓1". The repo or branch
-  // goes when the name already says it, and master/main go.
+  // Only what's unusual, after the name: the repo, when the name doesn't already say it.
+  // The branch and the status are on the tabs' own rows.
   gitTail(g, tree, name, t) {
-    const raw = g.branch ?? "detached";
     const same = (a) => a.toLowerCase() === name.toLowerCase();
-    const branch = same(raw) || raw === "master" || raw === "main" ? "" : raw;
-    const repo = tree || same(g.name) ? "" : g.name;
-    const at = [repo, branch].filter(Boolean).join(" · ");
+    const at = tree || same(g.name) ? "" : g.name;
     return h_flex()
       .flex_auto()
       .min_w(at ? SIDE_MIN : 0)
@@ -414,9 +543,7 @@ export default class Sidebar extends View {
       .items_center()
       .text_size(11.5)
       .text_color(t.dim)
-      .when(Boolean(at), (el) => el.child(div().min_w(0).truncate().child(at)))
-      .when(g.ahead > 0, (el) => el.child(div().flex_none().text_color(t.ansi2).child(`↑${g.ahead}`)))
-      .when(g.behind > 0, (el) => el.child(div().flex_none().text_color(t.ansi1).child(`↓${g.behind}`)));
+      .when(Boolean(at), (el) => el.child(div().min_w(0).truncate().child(at)));
   }
 
   // A small control on a row (add, fold), its press kept from the row's own.
@@ -512,8 +639,17 @@ export default class Sidebar extends View {
       });
       const kids = lead ? tree(all, lead.terminal, [], work.length > 0) : [];
       const count = kids.length + work.length;
-      // How full its context window is: green, yellow from 50%, red from 80%.
-      const used = this.work[lead?.terminal]?.context;
+      // How full its context window is: yellow from 50%, red from 80%.
+      const info = this.work[lead?.terminal];
+      const used = info?.context;
+      const effort = info?.effort && info.effort !== "medium" ? info.effort : null;
+      const git = lead?.cwd ? this.git[lead.cwd] : null;
+      const marks = git?.st ? statusMarks(git.st) : "";
+      const agentLine = Boolean(info?.model || effort || used != null);
+      // A detached HEAD has no branch to name: its line is only the status, and only when there is one.
+      const detached = git?.branch === "(detached)";
+      const gitLine = Boolean(git?.branch) && (!detached || Boolean(marks));
+      const indent = 8 + TAB_INDENT + (nested ? 22 : 0); // under the tab's icon; the name starts 24 further
       const foldKey = `kids-${lead?.terminal}`;
       const open = !this.folded.has(foldKey);
       const showing = on && lead && f?.pane === lead.pane ? f.shown : null;
@@ -528,14 +664,9 @@ export default class Sidebar extends View {
       const idle = !on && (!tab.status || tab.status === "idle");
       if (on && !showing) this.activeAt = ctx.index;
       ctx.index += 1;
-      const row = h_flex()
+      const row = v_flex()
         .id(`tab-${tab.id}`)
-        .h(28)
         .flex_none()
-        .pl(8 + TAB_INDENT + (nested ? 22 : 0))
-        .pr(8)
-        .gap(8)
-        .items_center()
         .rounded(8)
         .cursor_pointer()
         .when(on && !showing, (el) => el.bg(t.selected))
@@ -548,15 +679,29 @@ export default class Sidebar extends View {
           run("pane.focus", { pane: lead.pane });
         })
         .on_mouse_down("right", () => openOverlay({ mod: "menu", kind: "popup", width: 200, props: { tab: "tab", target: { id: tab.id, space: w.id } } }))
-        .child(h_flex().w(16).flex_none().justify_center().when(Boolean(pic), (el) => el.child(pic))
-          .when(!pic, (el) => el.child(svg(`${ICONS}/terminal.svg`).size(14).text_color(t.dim))))
-        .child(div().flex_1().min_w(0).truncate().text_color(idle ? t.muted : t.foreground).child(name))
-        .when(count > 0 && (hot || !open), (el) => el.child(this.control(t, `fold-${tab.id}`,
-          h_flex().gap(3).items_center().child(svg(`${ICONS}/chevron-${open ? "down" : "right"}.svg`).size(11)).when(!open, (el) => el.child(String(count))),
-          (cx) => this.fold(foldKey, cx))))
-        .when(used != null, (el) => el.child(div().id(`ctx-${tab.id}`).flex_none().text_size(11)
-          .text_color(used >= 80 ? t.ansi1 : used >= 50 ? t.ansi3 : t.ansi2).tooltip("Context used").child(`${used}%`)))
-        .child(status(t, tab.status));
+        .child(h_flex().h(28).pl(8 + TAB_INDENT + (nested ? 22 : 0)).pr(8).gap(8).items_center()
+          .child(h_flex().w(16).flex_none().justify_center().when(Boolean(pic), (el) => el.child(pic))
+            .when(!pic, (el) => el.child(svg(`${ICONS}/terminal.svg`).size(14).text_color(t.dim))))
+          .child(div().flex_1().min_w(0).truncate().text_color(idle ? t.muted : t.foreground).child(name))
+          .when(count > 0 && (hot || !open), (el) => el.child(this.control(t, `fold-${tab.id}`,
+            h_flex().gap(3).items_center().child(svg(`${ICONS}/chevron-${open ? "down" : "right"}.svg`).size(11)).when(!open, (el) => el.child(String(count))),
+            (cx) => this.fold(foldKey, cx))))
+          .child(status(t, tab.status)))
+        // Under the name: its agent (model, effort unless medium, context), then its git (branch, status on the right).
+        .when(agentLine || gitLine, (el) => el.pb(4))
+        .when(agentLine, (el) => el.child(
+          h_flex().h(17).pl(indent + 24).pr(8).gap(6).items_center().text_size(11).text_color(t.dim).overflow_hidden()
+            .when(Boolean(info?.model), (m) => m.child(div().flex_none().child(shortModel(info.model))))
+            .when(Boolean(effort), (m) => m.child(div().flex_none().text_color(t.muted).child(effort)))
+            .when(used != null, (m) => m.child(div().id(`ctx-${tab.id}`).flex_none()
+              .when(used >= 50, (c) => c.text_color(used >= 80 ? t.ansi1 : t.ansi3)).tooltip("Context used").child(`${used}%`)))))
+        .when(gitLine, (el) => el.child(
+          h_flex().h(17).pl(indent).pr(8).gap(8).items_center().text_size(11).text_color(t.dim)
+            .child(h_flex().id(`branch-${tab.id}`).flex_1().min_w(0).gap(8).items_center().tooltip(git.linked ? "Branch of a linked worktree" : "Branch")
+              .when(!detached, (b) => b
+                .child(h_flex().w(16).flex_none().justify_center().child(svg(git.linked ? "mods/pe-sidebar/worktree.svg" : `${ICONS}/branch.svg`).size(11).flex_none()))
+                .child(div().min_w(0).truncate().child(git.branch))))
+            .when(Boolean(marks), (m) => m.child(div().id(`git-${tab.id}`).flex_none().tooltip("Git status").child(marks)))));
       if (!open) return [row];
       const subs = kids.map((s) => {
         const k = s.t;

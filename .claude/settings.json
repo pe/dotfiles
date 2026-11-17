@@ -12,5 +12,88 @@
   },
   "preferredNotifChannel": "notifications_disabled",
   "disableDeepLinkRegistration": "disable",
-  "feedbackDrafts": "off"
+  "feedbackDrafts": "off",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "python3 -I ~/.config/herdr-app/mods/pe-sidebar/hook.py"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "python3 -I ~/.config/herdr-app/mods/pe-sidebar/hook.py"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "python3 -I ~/.config/herdr-app/mods/pe-sidebar/hook.py"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "python3 -I ~/.config/herdr-app/mods/pe-sidebar/hook.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "python3 -I ~/.config/herdr-app/mods/pe-sidebar/hook.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "in=$(cat); case \"$in\" in *backgroundTaskId*) printf %s \"$in\" | python3 -I ~/.config/herdr-app/mods/pe-sidebar/hook.py;; esac"
+          }
+        ]
+      },
+      {
+        "matcher": "Monitor|CronCreate|CronDelete|ScheduleWakeup|TaskStop",
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "python3 -I ~/.config/herdr-app/mods/pe-sidebar/hook.py"
+          }
+        ]
+      }
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "python3 -I ~/.config/herdr-app/mods/pe-usage/subagent_statusline.py"
+  }
 }
