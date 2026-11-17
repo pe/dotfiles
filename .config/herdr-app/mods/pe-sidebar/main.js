@@ -142,6 +142,18 @@ function tabTitle(tab, l) {
   return telling ? live : prog || tab.name;
 }
 
+// "sudo -Hu root vim x ~" -> "vim x ~": sudo and its options, those that take a value included.
+function unsudo(cmd) {
+  const w = cmd.split(/\s+/);
+  if (w[0] !== "sudo") return cmd;
+  let i = 1;
+  while (i < w.length && w[i].startsWith("-")) {
+    if (w[i] === "--") { i++; break; }
+    i += !w[i].startsWith("--") && /[ughpCDRTUrt]$/.test(w[i]) ? 2 : 1;
+  }
+  return w.slice(i).join(" ") || cmd;
+}
+
 // A sub-agent's name: the one it was given, else its own title, else its program.
 const kidTitle = (k) => k.name || clean(k.title) || k.template || k.program?.name || k.address;
 
@@ -658,8 +670,11 @@ export default class Sidebar extends View {
         if (!w.active) run("space.select", { id: w.id });
         if (!tab.active) run("tab.select", { id: tab.id });
       };
-      const pic = icon(lead?.program, 15, t.foreground);
-      const name = tabTitle(tab, lead);
+      const full = tabTitle(tab, lead);
+      // A command run with sudo: shown without it, and its icon red.
+      const sudo = !tab.named && /^sudo(\s|$)/.test(full);
+      const name = sudo ? unsudo(full) : full;
+      const pic = icon(lead?.program, 15, sudo ? t.ansi1 : t.foreground);
       const hot = this.hovered === tab.id;
       const idle = !on && (!tab.status || tab.status === "idle");
       if (on && !showing) this.activeAt = ctx.index;
@@ -681,8 +696,8 @@ export default class Sidebar extends View {
         .on_mouse_down("right", () => openOverlay({ mod: "menu", kind: "popup", width: 200, props: { tab: "tab", target: { id: tab.id, space: w.id } } }))
         .child(h_flex().h(28).pl(8 + TAB_INDENT + (nested ? 22 : 0)).pr(8).gap(8).items_center()
           .child(h_flex().w(16).flex_none().justify_center().when(Boolean(pic), (el) => el.child(pic))
-            .when(!pic, (el) => el.child(svg(`${ICONS}/terminal.svg`).size(14).text_color(t.dim))))
-          .child(div().flex_1().min_w(0).truncate().text_color(idle ? t.muted : t.foreground).child(name))
+            .when(!pic, (el) => el.child(svg(`${ICONS}/terminal.svg`).size(14).text_color(sudo ? t.ansi1 : t.dim))))
+          .child(div().id(`tab-title-${tab.id}`).flex_1().min_w(0).truncate().text_color(idle ? t.muted : t.foreground).tooltip(full).child(name))
           .when(count > 0 && (hot || !open), (el) => el.child(this.control(t, `fold-${tab.id}`,
             h_flex().gap(3).items_center().child(svg(`${ICONS}/chevron-${open ? "down" : "right"}.svg`).size(11)).when(!open, (el) => el.child(String(count))),
             (cx) => this.fold(foldKey, cx))))
@@ -732,7 +747,7 @@ export default class Sidebar extends View {
             .when(Boolean(l), (el) => el.border_l(1.5).border_color(t.input))
             .when(l === "└" || l === "├", (el) => el.border_b(1.5).rounded_bl(6))))
           .when(Boolean(kp), (el) => el.child(div().mr(7).child(kp)))
-          .child(div().flex_1().min_w(0).truncate().text_color(shownHere ? t.foreground : t.muted).child(kidTitle(k)))
+          .child(div().id(`sub-title-${k.address}`).flex_1().min_w(0).truncate().text_color(shownHere ? t.foreground : t.muted).tooltip(kidTitle(k)).child(kidTitle(k)))
           .child(div().ml(8).child(status(t, kidStatus(k, listed))));
       });
       return [row, ...subs, ...work.map((x, i) => { ctx.index += 1; return this.workRow(t, x, [i === work.length - 1 ? "└" : "├"], nested); })];
