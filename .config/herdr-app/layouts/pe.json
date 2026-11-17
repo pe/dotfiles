@@ -12,7 +12,7 @@
       "id": "sidebar",
       "type": "column",
       "size": { "px": 268 },
-      "min": 180,
+      "min": 190,
       "max": 480,
       "resizable": false,
       "children": [
