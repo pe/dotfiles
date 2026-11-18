@@ -1,10 +1,10 @@
 // Spaces with their tabs under them, agents and terminals alike. Under each tab, its
 // sub-agents (`hc run`) and what a Claude Code there runs beside its turn: subagents,
 // background commands, scheduled prompts (hook.py's files); on the tab, a line for its agent
-// (model, effort unless medium, context used) and a line of its folder's git (branch, and
-// status as starship's). Sets the window's title to "Herdr · space · session". Click to
+// (model, effort unless medium, context used); on the space, a line of its folder's git
+// (branch, and status as starship's). Sets the window's title to "Herdr · space · session". Click to
 // show, right-click for its menu, drag a space to reorder. Worktree spaces sit under their
-// main checkout's.
+// main checkout's; folding a main space folds them in too.
 
 import { View, div, svg, image } from "gpui-kit";
 import { v_flex, h_flex, ScrollHandle } from "gpui-base";
@@ -346,8 +346,6 @@ export default class Sidebar extends View {
       .items_center()
       .rounded(8)
       .text_size(12.5)
-      .when(Boolean(live), (el) => el.cursor_pointer().hover((s) => s.bg(t.hover)).on_click((_e, cx) => this.view(`${x.kind}-${x.id}`, live, cx)))
-      .tooltip(`${kind.tip}: ${x.desc}`)
       .children(lines.map((l) => div().self_start().mt(-4).w(9).h(16).mr(4).flex_none()
         .when(Boolean(l), (el) => el.border_l(1.5).border_color(t.input))
         .when(l === "└" || l === "├", (el) => el.border_b(1.5).rounded_bl(6))))
@@ -356,9 +354,12 @@ export default class Sidebar extends View {
       .child(div().ml(8).flex_none().text_size(11).text_color(t.dim).child(right));
     // A subagent's model, effort (unless medium) and context, under its row.
     const effort = x.effort && x.effort !== "medium" ? x.effort : null;
-    if (x.kind !== "subagent" || !(x.model || effort || x.used != null)) return row;
+    const tip = `${kind.tip}: ${x.desc}`;
+    const open = (el) => el.when(Boolean(live), (e) => e.cursor_pointer().hover((s) => s.bg(t.hover)).on_click((_e, cx) => this.view(`${x.kind}-${x.id}`, live, cx)));
+    if (x.kind !== "subagent" || !(x.model || effort || x.used != null)) return open(row).tooltip(tip);
     const used = x.used == null ? null : Math.round(x.used);
-    return v_flex().flex_none()
+    // Tooltip, hover and click sit on the wrapper, so they cover both lines.
+    return open(v_flex().id(`work-box-${x.kind}-${x.id}`).flex_none().rounded(8).tooltip(tip))
       .child(row)
       .child(h_flex().h(15).mb(2).pl(8 + TAB_INDENT + (nested ? 22 : 0) + 6).pr(8).items_center().text_size(11).text_color(t.dim).overflow_hidden()
         .children(lines.map((l) => div().w(9).h(15).mr(4).flex_none()
@@ -543,7 +544,7 @@ export default class Sidebar extends View {
   }
 
   // Only what's unusual, after the name: the repo, when the name doesn't already say it.
-  // The branch and the status are on the tabs' own rows.
+  // The branch and the status are on the space's own second line.
   gitTail(g, tree, name, t) {
     const same = (a) => a.toLowerCase() === name.toLowerCase();
     const at = tree || same(g.name) ? "" : g.name;
@@ -576,21 +577,36 @@ export default class Sidebar extends View {
     };
   }
 
-  spaceRow({ w, i, g, tree }, t, sp) {
+  spaceRow({ w, i, g, tree, trees }, t, sp) {
     const fromIndex = this.pressed === null ? -1 : sp.findIndex((s) => s.id === this.pressed);
     const color = (shared("space.colors") ?? {})[w.id] ?? "ansi6";
     const fill = color.startsWith("#") ? color : (MARK[color] ?? t[color]);
     const folded = this.folded.has(w.id);
     const hot = this.hovered === w.id;
-    return h_flex()
+    // A detached HEAD has no branch to name: its line is only the status, and only when there is one.
+    const detached = g?.branch === "(detached)";
+    const marks = g?.st ? statusMarks(g.st) : "";
+    const gitLine = Boolean(g?.branch) && (!detached || Boolean(marks));
+    const header = h_flex().h(30).gap(9).items_center()
+      .when(tree, (el) => el.child(svg(`${ICONS}/branch.svg`).size(13).flex_none().text_color(t.dim)))
+      .when(!tree, (el) => el.child(h_flex().size(18).flex_none().rounded(5).bg(fill).items_center().justify_center().text_size(10.5).font_bold().text_color("#ffffff").child([...w.name][0]?.toUpperCase() ?? "?")))
+      .child(div().flex_initial().min_w(SIDE_MIN).truncate().font_medium().text_color(t.foreground).child(w.name))
+      .child(g ? this.gitTail(g, tree, w.name, t) : div().flex_1())
+      .when(hot, (el) => el.child(this.control(t, `space-add-${w.id}`, svg(`${ICONS}/plus.svg`).size(12), () => {
+        if (!w.active) run("space.select", { id: w.id });
+        openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 });
+      })))
+      .when(trees > 0, (el) => el.child(h_flex().id(`trees-${w.id}`).flex_none().gap(3).items_center().text_size(11).text_color(t.dim).tooltip("Worktrees folded in")
+        .child(svg(`${ICONS}/branch.svg`).size(11).flex_none()).child(String(trees))))
+      .when(folded && w.status && w.status !== "idle", (el) => el.child(status(t, w.status)))
+      .when(hot || folded, (el) => el.child(this.control(t, `space-fold-${w.id}`,
+        svg(`${ICONS}/chevron-${folded ? "right" : "down"}.svg`).size(11), (cx) => this.fold(w.id, cx))));
+    return v_flex()
       .relative()
       .id(`space-${w.id}`)
       .px(8)
-      .h(30)
       .mt(i === 0 ? 0 : 4)
       .flex_none()
-      .gap(9)
-      .items_center()
       .rounded(8)
       .hover((s) => s.bg(t.hover))
       .on_hover(this.hover(w.id))
@@ -625,17 +641,16 @@ export default class Sidebar extends View {
         cx.notify();
       })
       .on_mouse_down("right", () => openOverlay({ mod: "menu", kind: "popup", width: 200, height: 260, props: { tab: "space", target: { id: w.id } } }))
-      .when(tree, (el) => el.pl(22).child(svg(`${ICONS}/branch.svg`).size(13).flex_none().text_color(t.dim)))
-      .when(!tree, (el) => el.child(h_flex().size(18).flex_none().rounded(5).bg(fill).items_center().justify_center().text_size(10.5).font_bold().text_color("#ffffff").child([...w.name][0]?.toUpperCase() ?? "?")))
-      .child(div().flex_initial().min_w(SIDE_MIN).truncate().font_medium().text_color(t.foreground).child(w.name))
-      .child(g ? this.gitTail(g, tree, w.name, t) : div().flex_1())
-      .when(hot, (el) => el.child(this.control(t, `space-add-${w.id}`, svg(`${ICONS}/plus.svg`).size(12), () => {
-        if (!w.active) run("space.select", { id: w.id });
-        openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 });
-      })))
-      .when(folded && w.status && w.status !== "idle", (el) => el.child(status(t, w.status)))
-      .when(hot || folded, (el) => el.child(this.control(t, `space-fold-${w.id}`,
-        svg(`${ICONS}/chevron-${folded ? "right" : "down"}.svg`).size(11), (cx) => this.fold(w.id, cx))));
+      .when(tree, (el) => el.pl(22))
+      .child(header)
+      // Under the name: its git (branch, status on the right), aligned with the name.
+      .when(gitLine, (el) => el.pb(4).child(
+        h_flex().h(17).pl(tree ? 22 : 27).gap(8).items_center().text_size(11).text_color(t.dim)
+          .child(h_flex().id(`branch-${w.id}`).flex_1().min_w(0).gap(8).items_center().tooltip(g.linked ? "Branch of a linked worktree" : "Branch")
+            .when(!detached, (b) => b
+              .child(h_flex().w(16).flex_none().justify_center().child(svg(g.linked ? "mods/pe-sidebar/worktree.svg" : `${ICONS}/branch.svg`).size(11).flex_none()))
+              .child(div().min_w(0).truncate().child(g.branch))))
+          .when(Boolean(marks), (m) => m.child(div().id(`git-${w.id}`).flex_none().tooltip("Git status").child(marks)))));
   }
 
   // One row per tab, named after its agent or program, with its sub-agents under it.
@@ -655,12 +670,7 @@ export default class Sidebar extends View {
       const info = this.work[lead?.terminal];
       const used = info?.context;
       const effort = info?.effort && info.effort !== "medium" ? info.effort : null;
-      const git = lead?.cwd ? this.git[lead.cwd] : null;
-      const marks = git?.st ? statusMarks(git.st) : "";
       const agentLine = Boolean(info?.model || effort || used != null);
-      // A detached HEAD has no branch to name: its line is only the status, and only when there is one.
-      const detached = git?.branch === "(detached)";
-      const gitLine = Boolean(git?.branch) && (!detached || Boolean(marks));
       const indent = 8 + TAB_INDENT + (nested ? 22 : 0); // under the tab's icon; the name starts 24 further
       const foldKey = `kids-${lead?.terminal}`;
       const open = !this.folded.has(foldKey);
@@ -702,21 +712,14 @@ export default class Sidebar extends View {
             h_flex().gap(3).items_center().child(svg(`${ICONS}/chevron-${open ? "down" : "right"}.svg`).size(11)).when(!open, (el) => el.child(String(count))),
             (cx) => this.fold(foldKey, cx))))
           .child(status(t, tab.status)))
-        // Under the name: its agent (model, effort unless medium, context), then its git (branch, status on the right).
-        .when(agentLine || gitLine, (el) => el.pb(4))
+        // Under the name: its agent (model, effort unless medium, context).
+        .when(agentLine, (el) => el.pb(4))
         .when(agentLine, (el) => el.child(
           h_flex().h(17).pl(indent + 24).pr(8).gap(6).items_center().text_size(11).text_color(t.dim).overflow_hidden()
             .when(Boolean(info?.model), (m) => m.child(div().flex_none().child(shortModel(info.model))))
             .when(Boolean(effort), (m) => m.child(div().flex_none().text_color(t.muted).child(effort)))
             .when(used != null, (m) => m.child(div().id(`ctx-${tab.id}`).flex_none()
-              .when(used >= 50, (c) => c.text_color(used >= 80 ? t.ansi1 : t.ansi3)).tooltip("Context used").child(`${used}%`)))))
-        .when(gitLine, (el) => el.child(
-          h_flex().h(17).pl(indent).pr(8).gap(8).items_center().text_size(11).text_color(t.dim)
-            .child(h_flex().id(`branch-${tab.id}`).flex_1().min_w(0).gap(8).items_center().tooltip(git.linked ? "Branch of a linked worktree" : "Branch")
-              .when(!detached, (b) => b
-                .child(h_flex().w(16).flex_none().justify_center().child(svg(git.linked ? "mods/pe-sidebar/worktree.svg" : `${ICONS}/branch.svg`).size(11).flex_none()))
-                .child(div().min_w(0).truncate().child(git.branch))))
-            .when(Boolean(marks), (m) => m.child(div().id(`git-${tab.id}`).flex_none().tooltip("Git status").child(marks)))));
+              .when(used >= 50, (c) => c.text_color(used >= 80 ? t.ansi1 : t.ansi3)).tooltip("Context used").child(`${used}%`)))));
       if (!open) return [row];
       const subs = kids.map((s) => {
         const k = s.t;
@@ -799,9 +802,13 @@ export default class Sidebar extends View {
       index: 0,
     };
     this.activeAt = -1;
-    const list = rows.flatMap((r) => {
+    // A folded main space takes its worktree spaces with it.
+    const foldedRepos = new Set(rows.filter((r) => !r.tree && r.g && !r.g.linked && this.folded.has(r.w.id)).map((r) => r.g.repo));
+    const hidden = (r) => r.tree && foldedRepos.has(r.g.repo);
+    const list = rows.filter((r) => !hidden(r)).flatMap((r) => {
       ctx.index += 1;
-      return [this.spaceRow(r, t, sp), ...(this.folded.has(r.w.id) ? [] : this.tabRows(r.w, r.tree, t, ctx))];
+      const trees = foldedRepos.has(r.g?.repo) && !r.tree ? rows.filter((k) => hidden(k) && k.g.repo === r.g.repo).length : 0;
+      return [this.spaceRow({ ...r, trees }, t, sp), ...(this.folded.has(r.w.id) ? [] : this.tabRows(r.w, r.tree, t, ctx))];
     });
     setAgentOrder(ctx.order);
     // Bring the shown tab into view when it, or its place in the list, changes.
