@@ -211,6 +211,9 @@ function status(t, s) {
   return div().w(14).flex_none();
 }
 
+// A program must have run this long before its ending marks a background tab.
+const MIN_RUN_MS = 3000;
+
 // Tab rows start under the space's name: past its avatar and the gap.
 const TAB_INDENT = 27;
 
@@ -220,6 +223,8 @@ export default class Sidebar extends View {
     this.checked = {}; // where() -> when it was last looked at
     this.pending = new Set(); // where()s to look at next
     this.busy = {}; // pane -> an agent working or a program in front of its shell
+    this.ran = {}; // pane -> when a program (not a shell or agent) took its foreground
+    this.finished = new Set(); // tabs where a program ended while the tab wasn't shown, until it is
     this.at = {}; // space -> its where() at the last look
     this.watching = new Map(); // local repos' pending folder watches
     // Spaces made while this runs wait (at most a moment) for their git, so a
@@ -392,7 +397,31 @@ export default class Sidebar extends View {
       this.refreshWork(cx);
     }
     if (due.size) this.refreshGit(due, cx);
-    if (sp.some((s) => !this.shown.has(s.id))) cx.notify();
+    if (this.trackFinished(sp, ps) || sp.some((s) => !this.shown.has(s.id))) cx.notify();
+  }
+
+  // A program that ran at least MIN_RUN_MS in front of a shell and ended while its tab
+  // wasn't shown marks the tab "done" until it is shown. Agents have their own status.
+  // True when the marks changed.
+  trackFinished(sp, ps) {
+    const now = Date.now();
+    const shown = new Set(sp.filter((s) => s.active).flatMap((s) => (s.tabs ?? []).filter((t) => t.active).map((t) => t.id)));
+    const before = this.finished.size;
+    const ran = {};
+    let changed = false;
+    for (const p of ps) {
+      if (!p.terminal) continue;
+      const running = !(p.program?.shell || p.program?.agent);
+      if (running) ran[p.pane] = this.ran[p.pane] ?? now;
+      else if (this.ran[p.pane] && now - this.ran[p.pane] >= MIN_RUN_MS && !shown.has(p.tab) && !this.finished.has(p.tab)) {
+        this.finished.add(p.tab);
+        changed = true;
+      }
+    }
+    for (const id of shown) if (this.finished.delete(id)) changed = true;
+    for (const id of [...this.finished]) if (!sp.some((s) => (s.tabs ?? []).some((t) => t.id === id))) this.finished.delete(id);
+    this.ran = ran;
+    return changed || this.finished.size !== before;
   }
 
   // Places whose git could have changed: new ones (a new space, a cd), where a
@@ -711,7 +740,7 @@ export default class Sidebar extends View {
           .when(count > 0 && (hot || !open), (el) => el.child(this.control(t, `fold-${tab.id}`,
             h_flex().gap(3).items_center().child(svg(`${ICONS}/chevron-${open ? "down" : "right"}.svg`).size(11)).when(!open, (el) => el.child(String(count))),
             (cx) => this.fold(foldKey, cx))))
-          .child(status(t, tab.status)))
+          .child(status(t, this.finished.has(tab.id) && (!tab.status || tab.status === "idle") ? "done" : tab.status)))
         // Under the name: its agent (model, effort unless medium, context).
         .when(agentLine, (el) => el.pb(4))
         .when(agentLine, (el) => el.child(
