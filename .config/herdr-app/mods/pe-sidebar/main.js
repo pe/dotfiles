@@ -10,6 +10,8 @@ import { View, div, svg, image } from "gpui-kit";
 import { v_flex, h_flex, ScrollHandle } from "gpui-base";
 import { spaces, panes, agents, terminals, focused, run, openOverlay, exec, hc, appHome, theme, shared, setShared, setAgentOrder, setWindowTitle, watchFolder, readTextFile, home, window, checking } from "herdr";
 
+import { clean, leadPanes, tabTitle, unsudo, status } from "./tabs.js";
+
 const ICONS = "mods/workspace-chrome";
 
 // Where a space is now: its first terminal's live folder, else where it was made.
@@ -116,44 +118,6 @@ const shortModel = (m) => m.replace(/\s*\((\d+[MK]) context\)/i, " $1").replace(
 // that draws space avatars): one strong color per hue, light and dark alike.
 const MARK = { ansi6: "#22a99a", ansi3: "#e3814f", ansi4: "#5b8def", ansi5: "#8b7cf6", ansi2: "#3fae6a", ansi1: "#d9649a" };
 
-// Drops what an agent puts before its title: a status glyph or spinner and the separator
-// after it ("✳ Fix login", "⠋ - Thinking"), and Codex's blinking "[ ! ] " / "[ . ] " mark.
-const clean = (s) => (s ?? "").replace(/^[^\p{L}\p{N}\p{Ps}\p{Pi}]+/u, "").replace(/^\[ [!.] \] /, "").trim();
-
-// Each tab's lead pane: its first agent, else its focused terminal, else its first terminal.
-function leadPanes(all) {
-  const leads = new Map();
-  for (const p of all) {
-    if (!p.terminal) continue;
-    const current = leads.get(p.tab);
-    if (!current || (!current.program?.agent && (p.program?.agent || (!current.focused && p.focused)))) leads.set(p.tab, p);
-  }
-  return leads;
-}
-
-// A tab's name: one someone gave it, else its agent's or program's own title, else the program.
-function tabTitle(tab, l) {
-  const prog = l?.program?.name;
-  const live = clean(l?.title);
-  // clean() would strip a path's leading ~ or /: test the title with only its status glyph gone.
-  const path = /^[~/]|^[A-Za-z]:\\/.test((l?.title ?? "").replace(/^[^\p{L}\p{N}~/]+/u, ""));
-  const telling = live && live !== l?.terminal && live !== prog && !path && !live.includes("@") && live.toLowerCase() !== l?.program?.key;
-  if (tab.named && tab.name !== prog) return tab.name;
-  return telling ? live : prog || tab.name;
-}
-
-// "sudo -Hu root vim x ~" -> "vim x ~": sudo and its options, those that take a value included.
-function unsudo(cmd) {
-  const w = cmd.split(/\s+/);
-  if (w[0] !== "sudo") return cmd;
-  let i = 1;
-  while (i < w.length && w[i].startsWith("-")) {
-    if (w[i] === "--") { i++; break; }
-    i += !w[i].startsWith("--") && /[ughpCDRTUrt]$/.test(w[i]) ? 2 : 1;
-  }
-  return w.slice(i).join(" ") || cmd;
-}
-
 // A sub-agent's name: the one it was given, else its own title, else its program.
 const kidTitle = (k) => k.name || clean(k.title) || k.template || k.program?.name || k.address;
 
@@ -200,15 +164,6 @@ function duration(ms) {
 function icon(p, size, color) {
   if (!p?.icon) return null;
   return p.tint ? svg(p.icon).size(size).flex_none().text_color(color) : image(p.icon).w(size).h(size).flex_none();
-}
-
-// Herdr's status marks: a spinner while working, "!" when blocked, a dot when done, a ring when idle.
-function status(t, s) {
-  if (s === "working") return svg(`${ICONS}/spinner.svg`).size(12).mx(1).flex_none().text_color(t.working).spin(900);
-  if (s === "blocked") return div().size(14).flex_none().rounded(4).bg(t.blocked + "26").text_size(10.5).font_bold().text_color(t.blocked).flex().items_center().justify_center().child("!");
-  if (s === "idle") return div().size(7).mx(3).flex_none().rounded(4).border(1.5).border_color(t.idle ?? t.dim);
-  if (s === "done") return div().size(7).mx(3).flex_none().rounded(4).bg(t.done);
-  return div().w(14).flex_none();
 }
 
 // A program must have run this long before its ending marks a background tab.
