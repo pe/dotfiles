@@ -1,0 +1,5 @@
+{
+  "name": "local-mods",
+  "owner": { "name": "emineo" },
+  "plugins": [{ "name": "pe-usage-tap", "source": "./pe-usage-tap", "description": "Writes plan limits, context fill, model, effort and subagent usage to the pe-herdr state files." }]
+}

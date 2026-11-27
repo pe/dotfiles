@@ -1,0 +1,1 @@
+{ "name": "pe-usage-tap", "version": "0.1.0", "description": "Writes plan limits, context fill, model, effort and subagent usage to the pe-herdr state files that the silent status lines used to fill." }

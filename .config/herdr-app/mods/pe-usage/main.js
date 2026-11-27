@@ -1,11 +1,11 @@
 // Claude's plan usage at the foot of the sidebar: the five-hour session and the weekly
-// limit, as % used. Claude Code tells its status line (statusline.py, silent), which
-// keeps it in ~/.local/state/pe-herdr/limits.json; read here every 15 seconds. It moves
-// when a Claude Code session does, which is when it changes.
+// limit, as % used. The pe-usage-tap mod (~/.claude/local-mods) sets it as the `pe_limits`
+// label on each Claude Code's terminal; the newest one is read here. It moves when a
+// Claude Code session does, which is when it changes.
 
 import { View, div, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { readTextFile, home, theme, checking } from "herdr";
+import { theme, checking, terminals } from "herdr";
 
 // "3d 12h", "2h 15m" or "40m".
 function until(ms) {
@@ -18,18 +18,24 @@ export default class Usage extends View {
   init(_props, cx) {
     this.limits = null;
     if (checking()) return;
-    this.read(cx);
-    cx.timer.every(15000, (cx) => this.read(cx));
+    this.readLabels(cx);
+    cx.timer.every(2000, (cx) => this.readLabels(cx));
   }
 
-  read(cx) {
-    cx.spawn(async (cx) => {
-      const text = await readTextFile(`${home()}/.local/state/pe-herdr/limits.json`).catch(() => null);
-      if (!text || text === this.text) return;
-      this.text = text;
-      try { this.limits = JSON.parse(text); } catch {}
-      cx.notify();
-    });
+  // The newest limits any terminal carries as the `pe_limits` label.
+  readLabels(cx) {
+    let best = null;
+    for (const k of terminals()) {
+      let l = null;
+      try { l = JSON.parse(k.labels?.pe_limits ?? "null"); } catch {}
+      if (l && typeof l.at === "number" && (!best || l.at > best.at)) best = l;
+    }
+    if (!best) return;
+    const text = JSON.stringify(best);
+    if (text === this.labelText) return;
+    this.labelText = text;
+    this.limits = { five_hour: best.five_hour, seven_day: best.seven_day };
+    cx.notify();
   }
 
   render() {

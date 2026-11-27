@@ -8,7 +8,7 @@
 
 import { View, div, svg, image } from "gpui-kit";
 import { v_flex, h_flex, ScrollHandle } from "gpui-base";
-import { spaces, panes, agents, terminals, focused, run, openOverlay, exec, hc, appHome, theme, shared, setShared, setAgentOrder, setWindowTitle, watchFolder, readTextFile, home, window, checking } from "herdr";
+import { spaces, panes, agents, terminals, focused, run, openOverlay, exec, hc, appHome, theme, shared, setShared, setAgentOrder, setWindowTitle, watchFolder, window, checking } from "herdr";
 
 import { clean, leadPanes, tabTitle, unsudo, status } from "./tabs.js";
 
@@ -27,8 +27,8 @@ const base = (path) => path.replace(/\/+$/, "").split("/").pop();
 // Changes made outside Herdr (an editor's save, a commit in another app): looked
 // for this often, in repos the list shows, while the window is in front.
 const FALLBACK = 60000;
-// What the hooks (hook.py) and the status line (pe-usage/statusline.py) keep for each Claude Code.
-const STATE = () => `${home()}/.local/state/pe-herdr`;
+// What the hooks (hook.py) and the pe-usage-tap mod keep for each Claude Code is read from the
+// terminal's labels (pe_*).
 
 // A terminal's work as rows to show now: its subagents (as hook.py keeps them) and its
 // background tasks, minus what has run out by itself (a monitor's time, a wakeup, a one-off cron).
@@ -50,9 +50,12 @@ function workRows(w, now, agents) {
   return { subagents, tasks };
 }
 
-const readJson = async (path) => {
-  try { return JSON.parse((await readTextFile(path)) ?? "null"); } catch { return null; }
+const parseJson = (text) => {
+  try { return JSON.parse(text ?? "null"); } catch { return null; }
 };
+
+// The terminal labels the pe-usage-tap mod keeps, which the sidebar redraws on.
+const LABELS = ["pe_session", "pe_ctx", "pe_model", "pe_effort", "pe_agents", "pe_work"];
 
 // Places looked at together (two git runs each).
 const AT_ONCE = 6;
@@ -198,7 +201,6 @@ export default class Sidebar extends View {
     if (checking()) return;
     // Refresh only when the refs could have changed (see `due`).
     cx.timer.every(250, (cx) => this.checkNew(cx));
-    this.watchWork(cx);
     // What runs out by itself (a monitor's time, a wakeup), and rows' ages, move on without a change.
     cx.timer.every(30000, (cx) => { if (Object.keys(this.work).length) { this.refreshWork(cx); cx.notify(); } });
   }
@@ -206,23 +208,6 @@ export default class Sidebar extends View {
   async close() {
     setWindowTitle(null);
     for (const t of Object.values(this.viewers)) run("terminal.kill", { terminal: t });
-  }
-
-  // Reads what the hooks and the status line keep when it changes: they write a file per
-  // terminal, in work/ and context/.
-  watchWork(cx) {
-    cx.spawn(async (cx) => {
-      await exec("mkdir", ["-p", `${STATE()}/work`, `${STATE()}/context`]).catch(() => {});
-      this.refreshWork(cx);
-      for (const dir of ["work", "context"]) {
-        cx.spawn(async (cx) => {
-          for (;;) {
-            try { await watchFolder(`${STATE()}/${dir}`); } catch { await cx.sleep(5000); continue; }
-            this.refreshWork(cx);
-          }
-        });
-      }
-    });
   }
 
   // The state of each terminal running a Claude Code; the window redraws if it changed.
@@ -236,8 +221,14 @@ export default class Sidebar extends View {
       try {
         const now = Date.now();
         const next = {};
+        const labels = Object.fromEntries(terminals().map((k) => [k.address, k.labels ?? {}]));
         await Promise.all(panes().filter((p) => p.terminal && p.program?.key === "claude").map((p) => p.terminal).map(async (t) => {
-          const [w, c, a] = await Promise.all([readJson(`${STATE()}/work/${t}.json`), readJson(`${STATE()}/context/${t}.json`), readJson(`${STATE()}/context/${t}.agents.json`)]);
+          const L = labels[t] ?? {};
+          const w = parseJson(L.pe_work);
+          // Labels left by an earlier session of this terminal are not used.
+          const fromLabels = Boolean(L.pe_session) && (!w?.session || w.session === L.pe_session);
+          const c = fromLabels ? { used: L.pe_ctx ? Number(L.pe_ctx) : null, model: L.pe_model || null, effort: L.pe_effort || null } : null;
+          const a = fromLabels ? parseJson(L.pe_agents) : null;
           if (!w && !c) return;
           next[t] = {
             context: typeof c?.used === "number" ? Math.round(c.used) : null,
@@ -349,6 +340,12 @@ export default class Sidebar extends View {
     const claude = ps.filter((p) => p.terminal && p.program?.key === "claude").map((p) => p.terminal).sort().join();
     if (claude !== this.claude) {
       this.claude = claude;
+      this.refreshWork(cx);
+    }
+    // The labels of a Claude Code changed: read its state.
+    const labels = terminals().map((k) => `${k.address}:${LABELS.map((n) => k.labels?.[n] ?? "").join("|")}`).join("\n");
+    if (labels !== this.labels) {
+      this.labels = labels;
       this.refreshWork(cx);
     }
     if (due.size) this.refreshGit(due, cx);

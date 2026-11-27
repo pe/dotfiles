@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Claude Code hook: keeps what a Claude Code in a Herdr terminal has going on beside
 its own turn (its subagents, background commands and monitors, scheduled prompts and
-wakeups) in ~/.local/state/pe-herdr/work/<terminal>.json, for the pe-sidebar to read.
-Prints nothing. The terminal is the hook's HC_TERMINAL_ID.
+wakeups) in the terminal's `pe_work` label, which the pe-sidebar reads live. Prints
+nothing. The terminal is the hook's HC_TERMINAL_ID; the label is also the state this
+reads back at the next event.
 
-  SessionStart, SessionEnd    a session begins with nothing; ends with its file gone
+  SessionStart, SessionEnd    a session begins with nothing; ends with its label gone
   SubagentStart/SubagentStop  a subagent runs; it stops, and stays listed only while
                               background work is still running (it may resume)
   Stop                        the session's running tasks, as Claude Code lists them
@@ -18,38 +19,43 @@ PostToolUse with "matcher": "Monitor|CronCreate|CronDelete|ScheduleWakeup|TaskSt
 (most are not; see settings.json).
 Python 3, standard library only."""
 
-import fcntl, glob, json, os, re, sys, time
-
-STATE = os.path.join(os.path.expanduser("~"), ".local", "state", "pe-herdr")
-WORK = os.path.join(STATE, "work")
-CONTEXT = os.path.join(STATE, "context")
+import fcntl, json, os, re, shutil, subprocess, sys, tempfile, time
 
 
 def fresh(session):
     return {"session": session, "subagents": {}, "tasks": {}, "crons": {}, "wake": None}
 
 
-def load(path):
+def hc(*args):
+    exe = shutil.which("hc") or os.path.join(os.path.expanduser("~"), ".local", "bin", "hc")
     try:
-        with open(path) as f:
-            st = json.load(f)
+        return subprocess.run([exe, *args], capture_output=True, text=True, timeout=5)
+    except Exception:
+        return None
+
+
+# The terminal's labels, as `hc get` reports them.
+def labels_of(term):
+    r = hc("get", term, "--json")
+    try:
+        labels = json.loads(r.stdout)["labels"]
+        return labels if isinstance(labels, dict) else {}
+    except Exception:
+        return {}
+
+
+def load(labels):
+    try:
+        st = json.loads(labels.get("pe_work") or "")
         return st if isinstance(st, dict) else None
     except Exception:
         return None
 
 
-def save(path, st):
-    tmp = f"{path}.{os.getpid()}"
-    with open(tmp, "w") as f:
-        json.dump(st, f)
-    os.replace(tmp, path)
-
-
-def remove(path):
-    try:
-        os.remove(path)
-    except OSError:
-        pass
+# Sets the terminal's `pe_work` label (None removes it) and removes the labels in `drop`.
+def publish(term, st, drop=()):
+    value = json.dumps(st, separators=(",", ":")) if st is not None else ""
+    hc("label", term, f"pe_work={value}", *[f"{k}=" for k in drop])
 
 
 # An id as Claude Code gives it, if it can go into a path.
@@ -177,38 +183,30 @@ def main():
     term = os.environ.get("HC_TERMINAL_ID", "")
     if not name or not re.fullmatch(r"[A-Za-z0-9_.-]+", term):
         return
-    os.makedirs(WORK, exist_ok=True)
-    path = os.path.join(WORK, f"{term}.json")
     now = int(time.time())
     session = s.get("session_id")
     # Hooks run at once, each on its own: one at a time per terminal.
-    with open(f"{path}.lock", "w") as lock:
+    with open(os.path.join(tempfile.gettempdir(), f"pe-herdr-{term}.lock"), "w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
-        st = load(path)
-        context = os.path.join(CONTEXT, f"{term}.json")
+        labels = labels_of(term)
+        st = load(labels)
+        drop = ()
         if name == "SessionEnd":
             if st and st.get("session") == session:
-                remove(path)
-                remove(context)
-                remove(os.path.join(CONTEXT, f"{term}.agents.json"))
+                publish(term, None)
             return
         if name == "SessionStart":
             if not (st and st.get("session") == session and s.get("source") == "compact"):
-                # What the status line kept of an earlier session goes; the new one's may be there already.
-                if (load(context) or {}).get("session") != session:
-                    remove(context)
-                    remove(os.path.join(CONTEXT, f"{term}.agents.json"))
+                # What the pe-usage-tap mod kept of an earlier session goes.
+                if labels.get("pe_session") not in (None, session):
+                    drop = ("pe_session", "pe_ctx", "pe_model", "pe_effort", "pe_agents")
                 st = fresh(session)
-            # Terminals not heard from for a week go.
-            for old in glob.glob(os.path.join(WORK, "*")) + glob.glob(os.path.join(CONTEXT, "*")):
-                if now - os.path.getmtime(old) > 7 * 86400:
-                    remove(old)
         else:
             # A session the hooks didn't see begin (started before them), or another one in this terminal.
             if not st or st.get("session") != session:
                 st = fresh(session)
             event(st, s, name, now)
-        save(path, st)
+        publish(term, st, drop)
 
 
 if __name__ == "__main__":
