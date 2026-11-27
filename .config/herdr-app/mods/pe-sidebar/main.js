@@ -510,7 +510,7 @@ export default class Sidebar extends View {
       );
       const name = repo.endsWith("/.git") ? base(repo.slice(0, -5)) : base(repo).replace(/\.git$/, "");
       const [ahead, behind] = counts.code === 0 ? counts.stdout.trim().split(/\s+/).map(Number) : [0, 0];
-      this.git[cwd] = { name, branch: branch.code === 0 ? branch.stdout.trim().replace(/^refs\/heads\//, "") : "(detached)", ahead, behind, repo, linked: repo !== `${top}/.git`, st: status.code === 0 ? parseStatus(status.stdout) : null };
+      this.git[cwd] = { name, branch: branch.code === 0 ? branch.stdout.trim().replace(/^refs\/heads\//, "") : "(detached)", ahead, behind, repo, top, linked: repo !== `${top}/.git`, st: status.code === 0 ? parseStatus(status.stdout) : null };
       this.watch(repo, cx);
     } catch {
       this.git[cwd] ??= null;
@@ -606,7 +606,8 @@ export default class Sidebar extends View {
     };
   }
 
-  spaceRow({ w, i, g, tree, trees }, t, sp) {
+  // `away`: the heading of a checkout with no space of its own; it only folds its tabs.
+  spaceRow({ w, i, g, tree, trees, away }, t, sp) {
     const fromIndex = this.pressed === null ? -1 : sp.findIndex((s) => s.id === this.pressed);
     const color = (shared("space.colors") ?? {})[w.id] ?? "ansi6";
     const fill = color.startsWith("#") ? color : (MARK[color] ?? t[color]);
@@ -621,7 +622,7 @@ export default class Sidebar extends View {
       .when(!tree, (el) => el.child(h_flex().size(18).flex_none().rounded(5).bg(fill).items_center().justify_center().text_size(10.5).font_bold().text_color("#ffffff").child([...w.name][0]?.toUpperCase() ?? "?")))
       .child(div().flex_initial().min_w(SIDE_MIN).truncate().font_medium().text_color(t.foreground).child(w.name))
       .child(g ? this.gitTail(g, tree, w.name, t) : div().flex_1())
-      .when(hot, (el) => el.child(this.control(t, `space-add-${w.id}`, svg(`${ICONS}/plus.svg`).size(12), () => {
+      .when(hot && !away, (el) => el.child(this.control(t, `space-add-${w.id}`, svg(`${ICONS}/plus.svg`).size(12), () => {
         if (!w.active) run("space.select", { id: w.id });
         openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 });
       })))
@@ -639,23 +640,29 @@ export default class Sidebar extends View {
       .rounded(8)
       .hover((s) => s.bg(t.hover))
       .on_hover(this.hover(w.id))
-      .when(this.pressed === w.id && this.over !== w.id, (el) => el.opacity(0.5))
-      .when(this.pressed !== null && this.over === w.id && this.pressed !== w.id, (el) => el.child(
+      .when(!away && this.pressed === w.id && this.over !== w.id, (el) => el.opacity(0.5))
+      .when(!away && this.pressed !== null && this.over === w.id && this.pressed !== w.id, (el) => el.child(
         div().absolute().left(0).right(0).h(2).bg(t.accent)
           .when(fromIndex < i, (line) => line.bottom(0))
           .when(fromIndex > i, (line) => line.top(0)),
       ))
       .on_mouse_down("left", () => {
+        if (away) return;
         this.pressed = w.id;
         this.over = w.id;
       })
       .on_mouse_move((_e, cx) => {
-        if (this.pressed !== null && this.over !== w.id) {
+        if (!away && this.pressed !== null && this.over !== w.id) {
           this.over = w.id;
           cx.notify();
         }
       })
       .on_mouse_up("left", (_e, cx) => {
+        if (away) {
+          cx.stop_propagation();
+          this.fold(w.id, cx);
+          return;
+        }
         const from = this.pressed;
         const over = this.over;
         this.pressed = null;
@@ -669,7 +676,9 @@ export default class Sidebar extends View {
         }
         cx.notify();
       })
-      .on_mouse_down("right", () => openOverlay({ mod: "menu", kind: "popup", width: 200, height: 260, props: { tab: "space", target: { id: w.id } } }))
+      .on_mouse_down("right", () => away
+        ? openOverlay({ mod: "worktree", kind: "dialog", width: 560, height: 480, props: { folder: g.top, machine: w.machine, action: "open" } })
+        : openOverlay({ mod: "menu", kind: "popup", width: 200, height: 260, props: { tab: "space", target: { id: w.id } } }))
       .when(tree, (el) => el.pl(22))
       .child(header)
       // Under the name: its git (branch, status on the right), aligned with the name.
@@ -682,10 +691,25 @@ export default class Sidebar extends View {
           .when(Boolean(marks), (m) => m.child(div().id(`git-${w.id}`).flex_none().tooltip("Git status").child(marks)))));
   }
 
+  // A space's own tabs, then one heading per other checkout its agents work in now.
+  groupedTabs(r, t, ctx, entries) {
+    const out = this.tabRows(r.tree, t, ctx, entries.filter((e) => !e.away));
+    const tops = [...new Set(entries.filter((e) => e.away).map((e) => e.away.top))];
+    for (const top of tops) {
+      const mine = entries.filter((e) => e.away?.top === top);
+      const g = mine[0].away;
+      ctx.index += 1;
+      const key = `away-${r.w.id}-${top}`;
+      out.push(this.spaceRow({ w: { id: key, name: base(top), active: false, status: null, machine: r.w.machine }, i: 1, g, tree: true, trees: 0, away: true }, t, []));
+      if (!this.folded.has(key)) out.push(...this.tabRows(true, t, ctx, mine));
+    }
+    return out;
+  }
+
   // One row per tab, named after its agent or program, with its sub-agents under it.
-  tabRows(w, nested, t, ctx) {
+  tabRows(nested, t, ctx, entries) {
     const { leads, byPane, listed, all, f, order } = ctx;
-    return w.tabs.flatMap((tab) => {
+    return entries.flatMap(({ tab, owner: w }) => {
       const lead = leads.get(tab.id);
       const on = w.active && tab.active;
       const tabPanes = byPane.get(tab.id) ?? [];
@@ -834,10 +858,23 @@ export default class Sidebar extends View {
     // A folded main space takes its worktree spaces with it.
     const foldedRepos = new Set(rows.filter((r) => !r.tree && r.g && !r.g.linked && this.folded.has(r.w.id)).map((r) => r.g.repo));
     const hidden = (r) => r.tree && foldedRepos.has(r.g.repo);
+    // A tab sits under the space whose folder's git root is where its agent works now
+    // (after a cd, or an agent moving into a worktree); no such space: under its own.
+    const entries = new Map();
+    for (const r of rows) {
+      for (const tab of r.w.tabs ?? []) {
+        const top = this.git[leads.get(tab.id)?.cwd]?.top;
+        const home = !top || r.g?.top === top ? r : rows.find((k) => k.g?.top === top);
+        const into = home ?? r;
+        // No space for that checkout: the tab gets a heading of its own inside its space.
+        const away = !home && top && r.g?.top !== top ? this.git[leads.get(tab.id).cwd] : null;
+        (entries.get(into.w.id) ?? entries.set(into.w.id, []).get(into.w.id)).push({ tab, owner: r.w, away });
+      }
+    }
     const list = rows.filter((r) => !hidden(r)).flatMap((r) => {
       ctx.index += 1;
       const trees = foldedRepos.has(r.g?.repo) && !r.tree ? rows.filter((k) => hidden(k) && k.g.repo === r.g.repo).length : 0;
-      return [this.spaceRow({ ...r, trees }, t, sp), ...(this.folded.has(r.w.id) ? [] : this.tabRows(r.w, r.tree, t, ctx))];
+      return [this.spaceRow({ ...r, trees }, t, sp), ...(this.folded.has(r.w.id) ? [] : this.groupedTabs(r, t, ctx, entries.get(r.w.id) ?? []))];
     });
     setAgentOrder(ctx.order);
     // Bring the shown tab into view when it, or its place in the list, changes.
